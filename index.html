@@ -554,8 +554,7 @@ function monthLabel(ym) {
 
 function escapeCsv(val) {
   const s = String(val);
-  if (s.includes(';') || s.includes('"') || s.includes('
-')) return '"' + s.replace(/"/g,'""') + '"';
+  if (s.includes(';') || s.includes('"') || s.includes('\n')) return '"' + s.replace(/"/g,'""') + '"';
   return s;
 }
 
@@ -1263,35 +1262,38 @@ function copyAISummary() {
   const budget = getBudget(ym);
   const exps = getMonthExpenses(ym);
   const top5 = sortRecords(exps).slice(0,5);
-  const byCatLines = Object.entries(met.byCat).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`  - ${c}: ${fmt(a)}`).join('
-');
-  const top5lines = top5.map((e,i)=>`  ${i+1}. ${e.date} | ${e.description} | ${fmt(e.amount)} | ${e.category}`).join('
-');
+  const byCatLines = Object.entries(met.byCat).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`  - ${c}: ${fmt(a)}`).join('\n');
+  const top5lines  = top5.map((e,i)=>`  ${i+1}. ${e.date} | ${e.description} | ${fmt(e.amount)} | ${e.category}`).join('\n');
   let budgetLine = 'No definido';
-  if (budget) { const rem = budget - met.totalExp; budgetLine = `${fmt(budget)}
-${rem>=0?'Presupuesto restante':'Presupuesto excedido en'}: ${fmt(Math.abs(rem))}`; }
-  const text = `Mes: ${ym} (${monthLabel(ym)})
-Ingresos del fondo común: ${fmt(met.totalInc)}
-Total gastado: ${fmt(met.totalExp)}
-${met.saldo>=0?'Saldo disponible':'Mes excedido en'}: ${fmt(Math.abs(met.saldo))}
-Porcentaje del ingreso gastado: ${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos registrados'}
-Categoría con mayor gasto: ${met.topCat||'—'} (${fmt(met.topAmt)})
-Gasto diario promedio: ${fmt(Math.round(met.dailyAvg))}
-${ym===currentMonthStr()?'Proyección de gasto mensual':'Gasto real del mes'}: ${fmt(Math.round(met.projection))}
-Presupuesto mensual: ${budgetLine}
-
-Top 5 gastos del mes:
-${top5lines||'  Sin gastos'}
-
-Distribución por categoría:
-${byCatLines||'  Sin gastos'}`;
-  navigator.clipboard.writeText(text).then(()=>showToast('Resumen copiado ✓','var(--accent)')).catch(()=>showToast('No se pudo copiar','var(--danger)'));
+  if (budget) {
+    const rem = budget - met.totalExp;
+    budgetLine = `${fmt(budget)}\n${rem>=0?'Presupuesto restante':'Presupuesto excedido en'}: ${fmt(Math.abs(rem))}`;
+  }
+  const text = [
+    `Mes: ${ym} (${monthLabel(ym)})`,
+    `Ingresos del fondo común: ${fmt(met.totalInc)}`,
+    `Total gastado: ${fmt(met.totalExp)}`,
+    `${met.saldo>=0?'Saldo disponible':'Mes excedido en'}: ${fmt(Math.abs(met.saldo))}`,
+    `Porcentaje del ingreso gastado: ${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos registrados'}`,
+    `Categoría con mayor gasto: ${met.topCat||'—'} (${fmt(met.topAmt)})`,
+    `Gasto diario promedio: ${fmt(Math.round(met.dailyAvg))}`,
+    `${ym===currentMonthStr()?'Proyección de gasto mensual':'Gasto real del mes'}: ${fmt(Math.round(met.projection))}`,
+    `Presupuesto mensual: ${budgetLine}`,
+    '',
+    'Top 5 gastos del mes:',
+    top5lines || '  Sin gastos',
+    '',
+    'Distribución por categoría:',
+    byCatLines || '  Sin gastos',
+  ].join('\n');
+  navigator.clipboard.writeText(text)
+    .then(()=>showToast('Resumen copiado ✓','var(--accent)'))
+    .catch(()=>showToast('No se pudo copiar','var(--danger)'));
 }
 window.copyAISummary = copyAISummary;
 
 function buildCSV(rows, headers) {
-  return '﻿' + [headers.join(';'), ...rows].join('
-');
+  return '\uFEFF' + [headers.join(';'), ...rows].join('\r\n');
 }
 
 function exportExpensesCSV() {
@@ -1317,32 +1319,35 @@ function monthClose() {
   const exps = getMonthExpenses(ym);
   const incs = getMonthIncome(ym);
   const now  = new Date().toISOString();
-  const closure = { mes:ym, fechaGeneracion:now, presupuesto:budget, totalIngresos:met.totalInc, totalGastos:met.totalExp, saldoDisponible:met.saldo, porcentajeGastado:met.pct, gastoDiarioPromedio:met.dailyAvg, proyeccionMensual:met.projection, totalesPorCategoria:met.byCat, gastos:exps, ingresos:incs };
+  const closure = {
+    mes:ym, fechaGeneracion:now, presupuesto:budget,
+    totalIngresos:met.totalInc, totalGastos:met.totalExp,
+    saldoDisponible:met.saldo, porcentajeGastado:met.pct,
+    gastoDiarioPromedio:met.dailyAvg, proyeccionMensual:met.projection,
+    totalesPorCategoria:met.byCat, gastos:exps, ingresos:incs
+  };
   downloadFile(JSON.stringify(closure,null,2), `cierre_${ym}.json`, 'application/json');
-  const BOM = '﻿'; let csv = BOM;
-  csv += `CIERRE DE MES - ${monthLabel(ym)}
-
-`;
-  csv += `Generado;${now}
-Presupuesto;${budget||'No definido'}
-Total Ingresos;${met.totalInc}
-Total Gastos;${met.totalExp}
-Saldo;${met.saldo}
-Porcentaje gastado;${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}
-Gasto diario promedio;${Math.round(met.dailyAvg)}
-
-`;
-  csv += `INGRESOS
-fecha;descripcion;monto;fuente
-` + incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')).join('
-');
-  csv += `
-
-GASTOS
-fecha;descripcion;monto;categoria
-` + exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category)].join(';')).join('
-');
-  downloadFile(csv, `cierre_${ym}.csv`, 'text/csv;charset=utf-8');
+  const BOM = '\uFEFF';
+  const csvLines = [
+    `CIERRE DE MES - ${monthLabel(ym)}`,
+    '',
+    `Generado;${now}`,
+    `Presupuesto;${budget||'No definido'}`,
+    `Total Ingresos;${met.totalInc}`,
+    `Total Gastos;${met.totalExp}`,
+    `Saldo;${met.saldo}`,
+    `Porcentaje gastado;${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}`,
+    `Gasto diario promedio;${Math.round(met.dailyAvg)}`,
+    '',
+    'INGRESOS',
+    'fecha;descripcion;monto;fuente',
+    ...incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')),
+    '',
+    'GASTOS',
+    'fecha;descripcion;monto;categoria',
+    ...exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category)].join(';')),
+  ];
+  downloadFile(BOM + csvLines.join('\r\n'), `cierre_${ym}.csv`, 'text/csv;charset=utf-8');
   if (confirm('¿Deseas eliminar los gastos e ingresos de este mes después del cierre?')) {
     if (confirm(`Esta acción eliminará los registros de ${monthLabel(ym)}. Se guardará un respaldo en Firestore. ¿Confirmas?`)) {
       const backupRef = doc(db, 'backups', `${ym}_${Date.now()}`);
@@ -1359,7 +1364,12 @@ fecha;descripcion;monto;categoria
 window.monthClose = monthClose;
 
 function exportBackup() {
-  const data = { version:1, exportedAt:new Date().toISOString(), expenses:state.expenses, income:state.income, categories:state.categories, incomeSources:state.incomeSources, budgets:state.budgets };
+  const data = {
+    version:1, exportedAt:new Date().toISOString(),
+    expenses:state.expenses, income:state.income,
+    categories:state.categories, incomeSources:state.incomeSources,
+    budgets:state.budgets
+  };
   downloadFile(JSON.stringify(data,null,2), `respaldo_fondo_comun_${todayStr()}.json`, 'application/json');
   showToast('Respaldo exportado ✓','var(--accent)');
 }
