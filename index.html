@@ -548,23 +548,23 @@ async function loadData(){
       DOCS.incomeSources.get(), DOCS.budgets.get(), DOCS.settings.get()
     ]));
 
-    state.expenses      = eS.exists()  ? eS.data().data||[]         : [...EXCEL_EXPENSES];
-    state.income        = iS.exists()  ? iS.data().data||[]         : [...EXCEL_INCOME];
-    state.categories    = cS.exists()  ? cS.data().data||[]         : [...DEFAULT_CATEGORIES];
-    state.incomeSources = sS.exists()  ? sS.data().data||[]         : [...DEFAULT_SOURCES];
-    state.budgets       = bS.exists()  ? bS.data()||{}              : {'2026-01':2212381,'2026-02':1900000,'2026-03':1900000,'2026-04':1908254,'2026-05':1900000};
-    state.settings      = stS.exists() ? stS.data()||{...DEFAULT_SETTINGS} : {...DEFAULT_SETTINGS};
+    state.expenses      = eS.exists  ? eS.data().data||[]         : [...EXCEL_EXPENSES];
+    state.income        = iS.exists  ? iS.data().data||[]         : [...EXCEL_INCOME];
+    state.categories    = cS.exists  ? cS.data().data||[]         : [...DEFAULT_CATEGORIES];
+    state.incomeSources = sS.exists  ? sS.data().data||[]         : [...DEFAULT_SOURCES];
+    state.budgets       = bS.exists  ? bS.data()||{}              : {'2026-01':2212381,'2026-02':1900000,'2026-03':1900000,'2026-04':1908254,'2026-05':1900000};
+    state.settings      = stS.exists ? stS.data()||{...DEFAULT_SETTINGS} : {...DEFAULT_SETTINGS};
     if(!state.categories.includes('Otros')) state.categories.push('Otros');
 
     // Seed new documents — non-blocking, failures don't matter
     setTimeout(async()=>{
       try {
-        if(!eS.exists())  await DOCS.expenses.set({data:cleanObj(state.expenses)});
-        if(!iS.exists())  await DOCS.income.set({data:cleanObj(state.income)});
-        if(!cS.exists())  await DOCS.categories.set({data:state.categories});
-        if(!sS.exists())  await DOCS.incomeSources.set({data:state.incomeSources});
-        if(!bS.exists())  await DOCS.budgets.set(state.budgets);
-        if(!stS.exists()) await DOCS.settings.set(state.settings);
+        if(!eS.exists)  await DOCS.expenses.set({data:cleanObj(state.expenses)});
+        if(!iS.exists)  await DOCS.income.set({data:cleanObj(state.income)});
+        if(!cS.exists)  await DOCS.categories.set({data:state.categories});
+        if(!sS.exists)  await DOCS.incomeSources.set({data:state.incomeSources});
+        if(!bS.exists)  await DOCS.budgets.set(state.budgets);
+        if(!stS.exists) await DOCS.settings.set(state.settings);
       } catch(e){ console.warn('Seed non-fatal:', e); }
     }, 0);
 
@@ -630,7 +630,7 @@ function isEditing(){
 
 function startRealtimeSync(){
   DOCS.expenses.onSnapshot(snap=>{
-    if(!snap.exists()||!isInitialized) return;
+    if(!snap.exists||!isInitialized) return;
     if(isEditing()) return; // don't clobber active edit
     const d=snap.data().data||[];
     if(JSON.stringify(d)!==JSON.stringify(state.expenses)){
@@ -639,17 +639,17 @@ function startRealtimeSync(){
     }
   });
   DOCS.income.onSnapshot(snap=>{
-    if(!snap.exists()||!isInitialized) return;
+    if(!snap.exists||!isInitialized) return;
     if(isEditing()) return;
     const d=snap.data().data||[];
     if(JSON.stringify(d)!==JSON.stringify(state.income)){ state.income=d; renderAll(); }
   });
   DOCS.budgets.onSnapshot(snap=>{
-    if(!snap.exists()||!isInitialized) return;
+    if(!snap.exists||!isInitialized) return;
     state.budgets=snap.data()||{}; renderBudget();
   });
   DOCS.settings.onSnapshot(snap=>{
-    if(!snap.exists()||!isInitialized) return;
+    if(!snap.exists||!isInitialized) return;
     state.settings=snap.data()||{...DEFAULT_SETTINGS}; renderTCBanner();
   });
 }
