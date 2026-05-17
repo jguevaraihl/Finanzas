@@ -533,14 +533,28 @@ async function loadData(){
   showSyncSpinner(false);
 }
 
+// Remove undefined values recursively — Firestore rejects them
+function cleanObj(obj){
+  if(Array.isArray(obj)) return obj.map(cleanObj);
+  if(obj&&typeof obj==='object'){
+    const out={};
+    for(const [k,v] of Object.entries(obj)){
+      if(v===undefined) continue;
+      out[k]=cleanObj(v);
+    }
+    return out;
+  }
+  return obj;
+}
+
 function saveAll(){
   clearTimeout(saveTimer);
   saveTimer=setTimeout(async()=>{
     showSyncSpinner(true);
     try {
       await Promise.all([
-        setDoc(DOCS.expenses,{data:state.expenses}),
-        setDoc(DOCS.income,{data:state.income}),
+        setDoc(DOCS.expenses,  {data:cleanObj(state.expenses)}),
+        setDoc(DOCS.income,    {data:cleanObj(state.income)}),
         setDoc(DOCS.categories,{data:state.categories}),
         setDoc(DOCS.incomeSources,{data:state.incomeSources}),
       ]);
@@ -948,8 +962,17 @@ function submitExpense(){
         const li=state.income.find(i=>i.id===old.clauLinkedIncome);
         if(li){delete li.clauLinkedExpense; li.updatedAt=now;}
       }
-      state.expenses[idx]={...old,date,description:desc,amount,category:cat,payType,isClau,tcPaid,
-        installments:1,clauLinkedIncome:clauLink||undefined,updatedAt:now};
+      state.expenses[idx]=cleanObj({
+        ...old,
+        date, description:desc, amount, category:cat, payType,
+        isClau:   isClau   || undefined,
+        tcPaid:   tcPaid   || undefined,
+        installments:    undefined,
+        installmentNum:  undefined,
+        groupId:         undefined,
+        clauLinkedIncome: clauLink || undefined,
+        updatedAt: now
+      });
       // Link new
       if(clauLink){
         const li=state.income.find(i=>i.id===clauLink);
@@ -976,8 +999,7 @@ function submitExpense(){
         createdAt:now, updatedAt:now
       };
       // Clean undefined keys
-      Object.keys(entry).forEach(k=>entry[k]===undefined&&delete entry[k]);
-      state.expenses.push(entry);
+      state.expenses.push(cleanObj(entry));
       // Link income to first installment
       if(n===0&&clauLink){
         const li=state.income.find(i=>i.id===clauLink);
@@ -1097,8 +1119,13 @@ function submitIncome(){
         const le=state.expenses.find(e=>e.id===old.clauLinkedExpense);
         if(le){delete le.clauLinkedIncome;le.updatedAt=now;}
       }
-      state.income[idx]={...old,date,description:desc,amount,source,isClauReturn:isClauReturn||undefined,
-        clauLinkedExpense:clauLink||undefined,updatedAt:now};
+      state.income[idx]=cleanObj({
+          ...old,
+          date, description:desc, amount, source,
+          isClauReturn:      isClauReturn || undefined,
+          clauLinkedExpense: clauLink     || undefined,
+          updatedAt: now
+        });
       if(clauLink){
         const le=state.expenses.find(e=>e.id===clauLink);
         if(le){le.clauLinkedIncome=editingIncomeId;le.updatedAt=now;}
@@ -1112,8 +1139,7 @@ function submitIncome(){
       isClauReturn:isClauReturn||undefined,
       clauLinkedExpense:clauLink||undefined,
       createdAt:now,updatedAt:now};
-    Object.keys(entry).forEach(k=>entry[k]===undefined&&delete entry[k]);
-    state.income.push(entry);
+    state.income.push(cleanObj(entry));
     if(clauLink){
       const le=state.expenses.find(e=>e.id===clauLink);
       if(le){le.clauLinkedIncome=id;le.updatedAt=now;}
