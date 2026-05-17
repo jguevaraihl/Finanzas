@@ -716,17 +716,35 @@ function renderTCBanner(){
 }
 
 /* ── CLAU BALANCE ── */
+function isClauExpense(e){
+  // Compatibilidad hacia atrás:
+  // 1) gastos nuevos marcados con checkbox isClau;
+  // 2) gastos antiguos importados cuyo texto contiene "Clau".
+  // Esto evita que el resumen quede vacío si el dato venía del Excel original.
+  const txt = `${e.description||''} ${e.category||''}`.toLowerCase();
+  return !!e.isClau || txt.includes('clau');
+}
+
+function isClauReturnIncome(i){
+  // No considera el sueldo mensual de Clau como abono de gastos personales.
+  // Solo ingresos marcados con el checkbox o descripciones explícitas de abono/devolución.
+  if(i.isClauReturn) return true;
+  const txt = `${i.description||''} ${i.source||''}`.toLowerCase();
+  if(txt.includes('sueldo clau')) return false;
+  return (txt.includes('clau') && (txt.includes('abono') || txt.includes('devol') || txt.includes('pago')));
+}
+
 function getClauBalance(ym=selectedMonth){
   // Balance mensual de Clau.
-  // Gastos Clau = gastos del mes marcados como personales de Clau.
+  // Gastos Clau = gastos del mes marcados como personales de Clau o gastos antiguos con "Clau" en la descripción.
   // Abonos Clau = ingresos del mes marcados explícitamente como abono de Clau.
-  // El aporte normal de inicio de mes NO debe marcarse como abono, para no distorsionar la deuda.
+  // El ingreso normal de inicio de mes, por ejemplo "Sueldo Clau", no se descuenta.
   const gastos = state.expenses
-    .filter(e=>e.isClau && e.date && e.date.slice(0,7)===ym)
-    .reduce((s,e)=>s+expenseAmount(e),0);
+    .filter(e=>isClauExpense(e) && e.date && e.date.slice(0,7)===ym)
+    .reduce((sum,e)=>sum+expenseAmount(e),0);
   const ingresos = state.income
-    .filter(i=>i.isClauReturn && i.date && i.date.slice(0,7)===ym)
-    .reduce((s,i)=>s+Number(i.amount||0),0);
+    .filter(i=>isClauReturnIncome(i) && i.date && i.date.slice(0,7)===ym)
+    .reduce((sum,i)=>sum+Number(i.amount||0),0);
   const pending = gastos - ingresos;
   return { gastos, ingresos, pending };
 }
@@ -735,28 +753,37 @@ function renderClauBanner(){
   const {gastos,ingresos,pending}=getClauBalance(selectedMonth);
   const el=document.getElementById('clauBanner');
   if(!el) return;
-  if(gastos===0&&ingresos===0){ el.style.display='none'; return; }
-  el.style.display='flex';
+
+  // Se muestra siempre bajo Tarjeta de Crédito para que el usuario pueda verificar el balance,
+  // incluso cuando todavía no existan gastos o abonos Clau en el mes seleccionado.
+  el.style.display='block';
   const color=pending>0?'var(--warn)':pending<0?'var(--accent2)':'var(--accent)';
   const estado=pending>0?'Falta por abonar':pending<0?'Abonó de más':'Al día';
+  const nota=(gastos===0&&ingresos===0)
+    ? 'Sin movimientos Clau identificados este mes.'
+    : 'Incluye gastos marcados como Clau y gastos antiguos con “Clau” en la descripción. El sueldo mensual de Clau no se descuenta como abono.';
+
   el.innerHTML=`
     <div style="width:100%">
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);font-weight:700">Balance Clau · ${monthLabel(selectedMonth)}</div>
-      <div class="grid grid-cols-3 gap-2 mt-2">
-        <div>
-          <div class="metric-label">Usado por Clau</div>
-          <div class="mono" style="font-size:17px;font-weight:700;color:var(--danger)">${fmt(gastos)}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);font-weight:800">Balance Clau · ${monthLabel(selectedMonth)}</div>
+        <div class="mono" style="font-size:12px;font-weight:800;color:${color};background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:999px;padding:4px 10px">${estado}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px">
+        <div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.18);border-radius:10px;padding:10px">
+          <div class="metric-label" style="color:#c9d1d9">Utilizado por Clau</div>
+          <div class="mono" style="font-size:18px;font-weight:800;color:var(--danger);margin-top:3px">${fmt(gastos)}</div>
         </div>
-        <div>
-          <div class="metric-label">Abonado por Clau</div>
-          <div class="mono" style="font-size:17px;font-weight:700;color:var(--accent2)">${fmt(ingresos)}</div>
+        <div style="background:rgba(56,139,253,.08);border:1px solid rgba(56,139,253,.18);border-radius:10px;padding:10px">
+          <div class="metric-label" style="color:#c9d1d9">Pagado por Clau</div>
+          <div class="mono" style="font-size:18px;font-weight:800;color:var(--accent2);margin-top:3px">${fmt(ingresos)}</div>
         </div>
-        <div>
-          <div class="metric-label">${estado}</div>
-          <div class="mono" style="font-size:17px;font-weight:700;color:${color}">${fmt(Math.abs(pending))}</div>
+        <div style="background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.20);border-radius:10px;padding:10px">
+          <div class="metric-label" style="color:#c9d1d9">${estado}</div>
+          <div class="mono" style="font-size:18px;font-weight:800;color:${color};margin-top:3px">${fmt(Math.abs(pending))}</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:6px">Solo considera gastos marcados como “Pagado por Clau” y abonos marcados explícitamente como “Abono de Clau por gastos personales”.</div>
+      <div style="font-size:11px;line-height:1.35;color:#8b949e;margin-top:8px">${nota}</div>
     </div>`;
 }
 
@@ -1150,7 +1177,7 @@ function submitExpense(){
             amount:cuota, category:cat, payType,
             totalAmount:amount,
             installments, installmentNum:n+1,
-            isClau:isClau&&n===0?true:undefined,
+            isClau:isClau?true:undefined,
             tcPaid:tcPaid||undefined,
             clauLinkedIncome:n===0&&clauLink?clauLink:undefined,
             createdAt:old.createdAt||now, updatedAt:now
@@ -1199,7 +1226,7 @@ function submitExpense(){
         amount:cuota, category:cat, payType,
         totalAmount:amount,
         installments, installmentNum:n+1,
-        isClau:isClau&&n===0?true:undefined,
+        isClau:isClau?true:undefined,
         tcPaid:tcPaid||undefined,
         createdAt:now, updatedAt:now
       }));
@@ -1220,7 +1247,7 @@ function submitExpense(){
         totalAmount:installments>1?amount:undefined,
         installments:installments>1?installments:undefined,
         installmentNum:installments>1?n+1:undefined,
-        isClau:isClau&&n===0?true:undefined,
+        isClau:isClau?true:undefined,
         tcPaid:tcPaid||undefined,
         clauLinkedIncome:n===0&&clauLink?clauLink:undefined,
         createdAt:now, updatedAt:now
