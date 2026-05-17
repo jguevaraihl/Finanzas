@@ -206,7 +206,7 @@ input[type="month"]{max-width:180px;}
   </div>
 
   <!-- Clau balance banner -->
-  <div id="clauBanner" class="clau-link mb-3 flex items-center justify-between gap-2" style="display:none!important"></div>
+  <div id="clauBanner" class="clau-link mb-3 flex items-center justify-between gap-2" style="display:none"></div>
 
   <div class="grid grid-cols-2 gap-3 mb-4">
     <div class="metric card col-span-2" id="metSaldo"></div>
@@ -370,6 +370,11 @@ input[type="month"]{max-width:180px;}
         <input type="text" id="newSourceInput" placeholder="Nueva fuente..." />
         <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewSource()">Agregar</button>
       </div>
+      <label class="flex items-center gap-2 cursor-pointer" style="color:var(--text)">
+        <input type="checkbox" id="incIsClauReturn" onchange="handleClauReturnChange()" />
+        <span style="font-size:14px">Abono de Clau por gastos personales</span>
+      </label>
+      <div class="text-xs" style="color:var(--muted);margin-top:-6px">No marcar el aporte normal de inicio de mes. Solo usar cuando Clau devuelve gastos personales pagados desde la cuenta común.</div>
       <!-- Vincular a gasto Clau -->
       <div id="clauIncLinkWrap" class="hidden clau-link">
         <div style="font-size:12px;margin-bottom:4px;color:var(--muted)">Vincular con gasto Clau pendiente:</div>
@@ -711,33 +716,47 @@ function renderTCBanner(){
 }
 
 /* ── CLAU BALANCE ── */
-function getClauBalance(){
-  // Clau pays things with her own money → then she ingresses to the fund
-  // "gastos Clau" = expenses tagged isClau (she paid, fund owes her)
-  // "ingresos Clau" = income tagged isClauReturn (she's paying into fund)
-  // pending = how much she still needs to ingress to the fund
-  const gastos  = state.expenses.filter(e=>e.isClau).reduce((s,e)=>s+e.amount,0);
-  const ingresos= state.income.filter(i=>i.isClauReturn).reduce((s,i)=>s+i.amount,0);
-  const pending = gastos - ingresos; // positive = she still owes ingressing
+function getClauBalance(ym=selectedMonth){
+  // Balance mensual de Clau.
+  // Gastos Clau = gastos del mes marcados como personales de Clau.
+  // Abonos Clau = ingresos del mes marcados explícitamente como abono de Clau.
+  // El aporte normal de inicio de mes NO debe marcarse como abono, para no distorsionar la deuda.
+  const gastos = state.expenses
+    .filter(e=>e.isClau && e.date && e.date.slice(0,7)===ym)
+    .reduce((s,e)=>s+expenseAmount(e),0);
+  const ingresos = state.income
+    .filter(i=>i.isClauReturn && i.date && i.date.slice(0,7)===ym)
+    .reduce((s,i)=>s+Number(i.amount||0),0);
+  const pending = gastos - ingresos;
   return { gastos, ingresos, pending };
 }
 
 function renderClauBanner(){
-  const {gastos,ingresos,pending}=getClauBalance();
+  const {gastos,ingresos,pending}=getClauBalance(selectedMonth);
   const el=document.getElementById('clauBanner');
+  if(!el) return;
   if(gastos===0&&ingresos===0){ el.style.display='none'; return; }
   el.style.display='flex';
-  const color=pending>0?'var(--warn)':'var(--accent)';
+  const color=pending>0?'var(--warn)':pending<0?'var(--accent2)':'var(--accent)';
+  const estado=pending>0?'Falta por abonar':pending<0?'Abonó de más':'Al día';
   el.innerHTML=`
-    <div>
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);font-weight:700">Clau — Pagos pendientes de ingresar al fondo</div>
-      <div style="font-size:13px;margin-top:3px">
-        Pagó: <strong class="mono">${fmt(gastos)}</strong> · 
-        Ha ingresado: <strong class="mono">${fmt(ingresos)}</strong> · 
-        <span style="color:${color}">
-          ${pending>0?'Falta ingresar':'Al día'}: <strong class="mono">${fmt(Math.abs(pending))}</strong>
-        </span>
+    <div style="width:100%">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);font-weight:700">Balance Clau · ${monthLabel(selectedMonth)}</div>
+      <div class="grid grid-cols-3 gap-2 mt-2">
+        <div>
+          <div class="metric-label">Usado por Clau</div>
+          <div class="mono" style="font-size:17px;font-weight:700;color:var(--danger)">${fmt(gastos)}</div>
+        </div>
+        <div>
+          <div class="metric-label">Abonado por Clau</div>
+          <div class="mono" style="font-size:17px;font-weight:700;color:var(--accent2)">${fmt(ingresos)}</div>
+        </div>
+        <div>
+          <div class="metric-label">${estado}</div>
+          <div class="mono" style="font-size:17px;font-weight:700;color:${color}">${fmt(Math.abs(pending))}</div>
+        </div>
       </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Solo considera gastos marcados como “Pagado por Clau” y abonos marcados explícitamente como “Abono de Clau por gastos personales”.</div>
     </div>`;
 }
 
@@ -1031,11 +1050,18 @@ function updateClauExpenseSelect(){
   const sel=document.getElementById('clauIncLinkSelect');
   const unlinked=state.expenses.filter(e=>e.isClau&&!e.clauLinkedIncome&&e.date.startsWith(selectedMonth));
   sel.innerHTML=`<option value="">— Sin vincular —</option>`+
-    unlinked.map(e=>`<option value="${e.id}">${e.date} · ${e.description} · ${fmt(e.amount)}</option>`).join('');
+    unlinked.map(e=>`<option value="${e.id}">${e.date} · ${e.description} · ${fmt(expenseAmount(e))}</option>`).join('');
   const wrap=document.getElementById('clauIncLinkWrap');
-  // Show if source contains "Clau" or toggle when source changes
-  wrap.classList.toggle('hidden', !document.getElementById('incSource').value.toLowerCase().includes('clau'));
+  const checked=document.getElementById('incIsClauReturn')?.checked||false;
+  wrap.classList.toggle('hidden', !checked);
 }
+
+function handleClauReturnChange(){
+  const checked=document.getElementById('incIsClauReturn').checked;
+  document.getElementById('clauIncLinkWrap').classList.toggle('hidden',!checked);
+  if(checked) updateClauExpenseSelect();
+}
+window.handleClauReturnChange=handleClauReturnChange;
 
 function handleTCOptionsChange(){
   const tcPaidChecked=document.getElementById('expTCPaid').checked;
@@ -1349,9 +1375,7 @@ function renderSourceSelect(){
 function handleIncSourceChange(){
   const v=document.getElementById('incSource').value;
   document.getElementById('newSourceWrap').classList.toggle('hidden',v!=='__new__');
-  const isClauSource=v.toLowerCase().includes('clau');
-  document.getElementById('clauIncLinkWrap').classList.toggle('hidden',!isClauSource);
-  if(isClauSource) updateClauExpenseSelect();
+  handleClauReturnChange();
 }
 window.handleIncSourceChange=handleIncSourceChange;
 
@@ -1372,7 +1396,7 @@ function submitIncome(){
   const amount=Number(document.getElementById('incAmount').value);
   const source=document.getElementById('incSource').value;
   const clauLink=document.getElementById('clauIncLinkSelect').value;
-  const isClauReturn=source.toLowerCase().includes('clau');
+  const isClauReturn=document.getElementById('incIsClauReturn')?.checked||false;
   const now=new Date().toISOString();
 
   if(!date) {showToast('Selecciona fecha','var(--danger)');return;}
@@ -1426,8 +1450,10 @@ function resetIncomeForm(){
   document.getElementById('incAmount').value='';
   document.getElementById('incSource').value=state.incomeSources[0]||'';
   document.getElementById('newSourceWrap').classList.add('hidden');
+  document.getElementById('incIsClauReturn').checked=false;
   document.getElementById('clauIncLinkWrap').classList.add('hidden');
 }
+
 function cancelEditIncome(){
   editingIncomeId=null;
   document.getElementById('incFormTitle').textContent='Nuevo Ingreso';
@@ -1447,6 +1473,7 @@ function editIncome(id){
   document.getElementById('incAmount').value=i.amount;
   renderSourceSelect();
   document.getElementById('incSource').value=i.source;
+  document.getElementById('incIsClauReturn').checked=!!i.isClauReturn;
   handleIncSourceChange();
   document.getElementById('incFormTitle').textContent='Editar Ingreso';
   document.getElementById('incSubmitBtn').textContent='Actualizar ingreso';
