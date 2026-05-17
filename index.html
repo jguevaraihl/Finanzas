@@ -698,9 +698,11 @@ async function saveTCLimit(){
 window.saveTCLimit=saveTCLimit;
 
 function getTCUsed(){
-  // TC used = expenses with payType TC not yet paid to TC
+  // TC used = cargos TC no pagados menos reversas TC.
+  // Importante: una reversa TC debe liberar cupo aunque el checkbox "Ya pagado" haya quedado marcado por error o por edición previa.
+  // En cambio, una reversa DB solo corrige la categoría/saldo, no toca el cupo de la TC.
   return state.expenses
-    .filter(e=>e.payType==='TC'&&!e.tcPaid)
+    .filter(e=>e.payType==='TC' && (!e.tcPaid || expenseAmount(e)<0))
     .reduce((s,e)=>s+expenseAmount(e),0);
 }
 
@@ -904,7 +906,11 @@ function sortRecords(arr){
 }
 
 function payTypeBadge(e){
-  if(expenseAmount(e)<0) return `<span class="badge badge-green">Reversa</span>`;
+  if(expenseAmount(e)<0){
+    return e.payType==='TC'
+      ? `<span class="badge badge-purple">Reversa TC</span>`
+      : `<span class="badge badge-green">Reversa DB</span>`;
+  }
   if(e.payType==='DB') return `<span class="badge badge-green">Débito</span>`;
   const q=e.installments||1;
   const qLabel=q>1?` ${e.installmentNum||1}/${q}`:'';
@@ -1031,10 +1037,18 @@ function updateInstallmentPreview(){
   const amtLabel=document.getElementById('expAmountLabel');
   const cuotaDisplay=document.getElementById('expCuotaDisplay');
   const instWrap=document.getElementById('installmentsWrap');
+  const tcOptions=document.getElementById('tcOptions');
+  const tcPaid=document.getElementById('expTCPaid');
 
   if(instWrap){
     instWrap.style.display = (currentPayType==='TC' && !isNegative) ? '' : 'none';
   }
+  // En reversas se mantiene visible el selector TC / Débito, porque define si libera cupo de TC o solo corrige débito.
+  // Se ocultan las opciones propias de cargos TC para evitar confundir una reversa con un pago al banco.
+  if(tcOptions){
+    tcOptions.style.display = (currentPayType==='TC' && !isNegative) ? '' : 'none';
+  }
+  if(isNegative && tcPaid) tcPaid.checked=false;
   if(mes0Wrap) mes0Wrap.classList.toggle('hidden', currentPayType!=='TC'||installments<=1||isNegative);
 
   if(amtLabel){
@@ -1048,8 +1062,10 @@ function updateInstallmentPreview(){
   }
   if(cuotaDisplay){
     if(isNegative&&amount){
-      cuotaDisplay.textContent=`Se descontará ${fmt(amount)} de la categoría seleccionada.`;
-      cuotaDisplay.style.color='var(--accent)';
+      cuotaDisplay.textContent = currentPayType==='TC'
+        ? `Se descontará ${fmt(amount)} de la categoría y se liberará cupo de la TC.`
+        : `Se descontará ${fmt(amount)} de la categoría. No libera cupo de la TC.`;
+      cuotaDisplay.style.color = currentPayType==='TC' ? 'var(--accent)' : 'var(--accent2)';
       cuotaDisplay.classList.remove('hidden');
     } else if(installments>1&&amount){
       cuotaDisplay.textContent=`Cuota aprox.: ${fmt(Math.round(amount/installments))} × ${installments} = ${fmt(amount)}`;
