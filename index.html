@@ -9,152 +9,206 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-:root{--bg:#0d1117;--surface:#161b22;--border:#21262d;--muted:#8b949e;--text:#e6edf3;--accent:#3fb950;--accent2:#388bfd;--danger:#f85149;--warn:#d29922;--card:#1c2128;--purple:#a371f7;}
-*{box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
-.mono{font-family:'DM Mono',monospace;}
-.nav-tab{display:flex;align-items:center;justify-content:center;padding:10px 0;gap:4px;cursor:pointer;font-size:11px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;flex:1;}
-.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
-.nav-tab svg{width:17px;height:17px;}
-.section{display:none;}
-.section.active{display:block;}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
-input,select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;width:100%;font-family:'DM Sans',sans-serif;font-size:15px;transition:border-color .15s;min-height:44px;}
-input:focus,select:focus{outline:none;border-color:var(--accent2);}
-input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7);}
-input[type="checkbox"]{width:18px;min-height:18px;height:18px;accent-color:var(--accent);cursor:pointer;}
-input[type="range"]{min-height:20px;padding:4px 0;}
-label{font-size:13px;color:var(--muted);margin-bottom:4px;display:block;font-weight:500;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;border:none;min-height:44px;transition:opacity .15s,transform .1s;font-family:'DM Sans',sans-serif;}
-.btn:active{transform:scale(.97);}
-.btn-primary{background:var(--accent);color:#0d1117;}
-.btn-primary:hover{opacity:.88;}
-.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
-.btn-secondary:hover{border-color:var(--muted);}
-.btn-danger{background:var(--danger);color:#fff;}
-.btn-danger:hover{opacity:.85;}
-.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px;min-height:36px;min-width:36px;border-radius:6px;}
-.btn-ghost:hover{color:var(--text);border-color:var(--muted);}
-.btn-blue{background:var(--accent2);color:#fff;}
-.btn-blue:hover{opacity:.88;}
-.btn-purple{background:var(--purple);color:#fff;}
-.btn-sm{padding:6px 12px;font-size:13px;min-height:34px;}
-.metric{border-radius:10px;padding:14px 16px;}
-.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;}
-.metric-value{font-size:22px;font-weight:700;margin-top:4px;}
-.prog-track{background:var(--surface);border-radius:999px;height:10px;overflow:hidden;margin-top:8px;}
-.prog-fill{height:100%;border-radius:999px;transition:width .4s ease;}
-.hist-wrap{max-height:320px;overflow-y:auto;overflow-x:auto;border-radius:8px;}
-.hist-wrap::-webkit-scrollbar,.chart-scroll::-webkit-scrollbar{width:6px;height:6px;}
-.hist-wrap::-webkit-scrollbar-track,.chart-scroll::-webkit-scrollbar-track{background:var(--surface);}
-.hist-wrap::-webkit-scrollbar-thumb,.chart-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-th{color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--card);z-index:1;}
-td{padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:rgba(255,255,255,.02);}
-.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(56,139,253,.15);color:var(--accent2);}
-.badge-green{background:rgba(63,185,80,.12);color:var(--accent);}
-.badge-red{background:rgba(248,81,73,.12);color:var(--danger);}
-.badge-orange{background:rgba(210,153,34,.12);color:var(--warn);}
-.badge-purple{background:rgba(163,113,247,.15);color:var(--purple);}
-.badge-gray{background:rgba(139,148,158,.12);color:var(--muted);}
-#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;z-index:9999;transition:transform .25s ease,opacity .25s;opacity:0;pointer-events:none;max-width:90vw;text-align:center;}
-#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
-.chart-box{position:relative;}
-.cat-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:13px;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.fade-in{animation:fadeIn .2s ease both;}
-@keyframes spin{to{transform:rotate(360deg)}}
-::-webkit-scrollbar{width:6px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
-input[type="month"]{max-width:180px;}
-.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px;}
-.empty{text-align:center;padding:28px 16px;color:var(--muted);font-size:14px;}
-.empty svg{margin:0 auto 10px;opacity:.35;}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center;padding:16px;}
-.modal-overlay.open{display:flex;}
-.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:440px;animation:fadeIn .2s ease;max-height:90vh;overflow-y:auto;}
-.app-header{background:linear-gradient(135deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid var(--border);}
-.tc-indicator{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:6px;}
-.clau-link{background:rgba(163,113,247,.12);border:1px dashed rgba(163,113,247,.4);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--purple);}
-.toggle-group{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
-.toggle-btn{flex:1;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif;min-height:42px;}
-.toggle-btn.active{background:var(--accent2);color:#fff;}
-.toggle-btn.active.tc{background:var(--purple);}
+  :root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #21262d;
+    --muted:    #8b949e;
+    --text:     #e6edf3;
+    --accent:   #3fb950;
+    --accent2:  #388bfd;
+    --danger:   #f85149;
+    --warn:     #d29922;
+    --card:     #1c2128;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+  .mono { font-family: 'DM Mono', monospace; }
+
+  /* ── NAV ── */
+  .nav-tab {
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 0; gap: 5px; cursor: pointer; font-size: 12px; font-weight: 500;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    flex: 1;
+  }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .nav-tab svg { width:18px; height:18px; }
+
+  /* ── SECTION ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+
+  /* ── INPUTS ── */
+  input, select, textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 10px 12px;
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    transition: border-color .15s;
+    min-height: 44px;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent2); }
+  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
+  label { font-size: 13px; color: var(--muted); margin-bottom: 4px; display: block; font-weight: 500; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 18px; border-radius: 8px; font-weight: 600;
+    font-size: 14px; cursor: pointer; border: none; min-height: 44px;
+    transition: opacity .15s, transform .1s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: var(--accent); color: #0d1117; }
+  .btn-primary:hover { opacity: .88; }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--muted); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:hover { opacity: .85; }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 8px; min-height: 36px; min-width: 36px; border-radius: 6px; }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn-blue { background: var(--accent2); color: #fff; }
+  .btn-blue:hover { opacity: .88; }
+  .btn-sm { padding: 6px 12px; font-size: 13px; min-height: 34px; }
+
+  /* ── METRIC CARDS ── */
+  .metric { border-radius: 10px; padding: 14px 16px; }
+  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .metric-value { font-size: 22px; font-weight: 700; margin-top: 4px; mono; }
+
+  /* ── PROGRESS BAR ── */
+  .prog-track { background: var(--surface); border-radius: 999px; height: 10px; overflow: hidden; margin-top: 8px; }
+  .prog-fill { height: 100%; border-radius: 999px; transition: width .4s ease; }
+
+  /* ── HISTORY TABLE ── */
+  .hist-wrap { max-height: 300px; overflow-y: auto; overflow-x: auto; border-radius: 8px; }
+  .hist-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+  .hist-wrap::-webkit-scrollbar-track { background: var(--surface); }
+  .hist-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { color: var(--muted); font-weight: 600; text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top:0; background: var(--card); z-index: 1; }
+  td { padding: 9px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* ── BADGE ── */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: rgba(56,139,253,.15); color: var(--accent2); }
+  .badge-green { background: rgba(63,185,80,.12); color: var(--accent); }
+  .badge-red { background: rgba(248,81,73,.12); color: var(--danger); }
+  .badge-orange { background: rgba(210,153,34,.12); color: var(--warn); }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 500; z-index: 9999;
+    transition: transform .25s ease, opacity .25s;
+    opacity: 0; pointer-events: none; max-width: 90vw; text-align: center;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── CHART CONTAINERS ── */
+  .chart-box { position: relative; }
+
+  /* ── CATEGORY PILL ── */
+  .cat-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px 5px 12px; border-radius: 999px;
+    background: var(--surface); border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn .2s ease both; }
+
+  /* ── SCROLLBAR GLOBAL ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── MONTH INPUT ── */
+  input[type="month"] { max-width: 180px; }
+
+  /* ── SECTION HEADER ── */
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 12px; }
+
+  /* ── EMPTY STATE ── */
+  .empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 14px; }
+  .empty svg { margin: 0 auto 10px; opacity: .35; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.65); z-index: 500;
+    align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 420px; animation: fadeIn .2s ease; }
+
+  /* ── HEADER GRADIENT ── */
+  .app-header {
+    background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+  }
 </style>
 </head>
 <body>
 
+<!-- ── TOAST ── -->
 <div id="toast"></div>
 
-<!-- Modal categoría con gastos -->
+<!-- ── MODAL (Categoría / Fuente eliminación con gastos) ── -->
 <div class="modal-overlay" id="catDeleteModal">
   <div class="modal-box">
     <h3 class="text-base font-semibold mb-2" id="catDeleteTitle">Eliminar categoría</h3>
     <p class="text-sm mb-4" id="catDeleteMsg" style="color:var(--muted)"></p>
     <div class="flex flex-col gap-2">
-      <div>
-        <label style="font-size:13px;color:var(--muted);margin-bottom:6px;display:block">Mover gastos a categoría:</label>
-        <div class="flex gap-2">
-          <select id="catDeleteTarget" style="flex:1"></select>
-          <button class="btn btn-secondary" id="catDeleteMove" style="white-space:nowrap">Mover gastos</button>
-        </div>
-      </div>
+      <button class="btn btn-secondary" id="catDeleteMove">Mover gastos a "Otros"</button>
       <button class="btn btn-danger" id="catDeleteAll">Eliminar también los gastos</button>
       <button class="btn btn-ghost" id="catDeleteCancel">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal Clau: vincular gasto <-> ingreso -->
-<div class="modal-overlay" id="clauModal">
-  <div class="modal-box">
-    <h3 class="text-base font-semibold mb-3">Vincular Gasto ↔ Ingreso Clau</h3>
-    <p class="text-sm mb-4" style="color:var(--muted)" id="clauModalDesc"></p>
-    <div id="clauModalList" class="flex flex-col gap-2 mb-4" style="max-height:260px;overflow-y:auto;"></div>
-    <div class="flex gap-2">
-      <button class="btn btn-ghost flex-1" onclick="closeClauModal()">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Cupo TC -->
-<div class="modal-overlay" id="tcModal">
-  <div class="modal-box">
-    <h3 class="text-base font-semibold mb-3">Configurar Tarjeta de Crédito</h3>
-    <div class="flex flex-col gap-3">
-      <div>
-        <label>Cupo total de la TC (CLP)</label>
-        <input type="number" id="tcLimitInput" min="1" step="1000" />
-      </div>
-      <button class="btn btn-primary" onclick="saveTCLimit()">Guardar cupo</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('tcModal').classList.remove('open')">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<!-- APP HEADER -->
-<div class="app-header px-4 py-3">
+<!-- ── APP HEADER ── -->
+<div class="app-header px-4 py-4">
   <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <div class="text-xs font-semibold uppercase tracking-widest mb-0.5" style="color:var(--accent)">Fondo Común</div>
+        <div class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:var(--accent)">Fondo Común</div>
         <h1 class="text-xl font-bold tracking-tight">Finanzas de Pareja</h1>
       </div>
       <div class="flex items-center gap-2">
-        <span id="syncSpinner" style="opacity:0;transition:opacity .2s">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2.5" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-        </span>
-        <span id="syncStatus" style="font-size:11px;color:var(--muted)">Conectando...</span>
-        <input type="month" id="monthSelector" class="text-sm font-medium" style="max-width:150px" />
+        <label class="sr-only" for="monthSelector">Mes</label>
+        <input type="month" id="monthSelector" class="text-sm font-medium" style="max-width:160px" />
       </div>
     </div>
   </div>
 </div>
 
-<!-- NAV TABS -->
+<!-- ── BOTTOM NAV TABS ── -->
 <div style="position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border)">
   <div class="max-w-2xl mx-auto flex">
     <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">
@@ -180,159 +234,200 @@ input[type="month"]{max-width:180px;}
   </div>
 </div>
 
-<div id="appLoading" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:16px">
-  <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
-  <div style="color:var(--muted);font-size:14px">Conectando con la nube...</div>
-</div>
-
+<!-- ── MAIN CONTENT ── -->
 <main class="max-w-2xl mx-auto px-4 py-4 pb-10">
-<div id="appContent" style="display:none">
 
-<!-- ===== DASHBOARD ===== -->
-<div id="tab-dashboard" class="section active">
+  <!-- ============================================================ DASHBOARD ============================================================ -->
+  <div id="tab-dashboard" class="section active">
 
-  <!-- TC Banner -->
-  <div id="tcBanner" class="card mb-3" style="border-color:rgba(163,113,247,.3);background:rgba(163,113,247,.05);">
-    <div class="flex items-center justify-between flex-wrap gap-2">
-      <div>
-        <div class="metric-label" style="color:var(--purple)">Tarjeta de Crédito</div>
-        <div id="tcBannerContent"></div>
-      </div>
-      <button class="btn btn-sm" style="background:rgba(163,113,247,.15);color:var(--purple);border:1px solid rgba(163,113,247,.3)" onclick="document.getElementById('tcModal').classList.add('open');document.getElementById('tcLimitInput').value=state.settings.tcLimit||3100000">⚙ Configurar cupo</button>
+    <!-- Metrics grid -->
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="metric card col-span-2" id="metSaldo"></div>
+      <div class="metric card" id="metIngresos"></div>
+      <div class="metric card" id="metGastos"></div>
+      <div class="metric card" id="metPct"></div>
+      <div class="metric card" id="metTopCat"></div>
+      <div class="metric card" id="metDailyAvg"></div>
+      <div class="metric card" id="metProjection"></div>
     </div>
-    <div id="tcProgTrack" class="prog-track mt-2"></div>
-  </div>
 
-  <!-- Clau balance banner -->
-  <div id="clauBanner" class="clau-link mb-3 flex items-center justify-between gap-2" style="display:none!important"></div>
-
-  <div class="grid grid-cols-2 gap-3 mb-4">
-    <div class="metric card col-span-2" id="metSaldo"></div>
-    <div class="metric card" id="metIngresos"></div>
-    <div class="metric card" id="metGastos"></div>
-    <div class="metric card" id="metPct"></div>
-    <div class="metric card" id="metTopCat"></div>
-    <div class="metric card" id="metDailyAvg"></div>
-    <div class="metric card" id="metProjection"></div>
-  </div>
-
-  <div class="card mb-4" id="budgetSection">
-    <div class="section-title">Presupuesto mensual</div>
-    <div class="flex gap-2 mb-3">
-      <input type="number" id="budgetInput" placeholder="Ej: 1500000" min="1" step="1" />
-      <button class="btn btn-primary" style="white-space:nowrap" onclick="saveBudget()">Guardar</button>
+    <!-- Budget -->
+    <div class="card mb-4" id="budgetSection">
+      <div class="section-title">Presupuesto mensual</div>
+      <div class="flex gap-2 mb-3">
+        <input type="number" id="budgetInput" placeholder="Ej: 1500000" min="1" step="1" />
+        <button class="btn btn-primary" style="white-space:nowrap" onclick="saveBudget()">Guardar</button>
+      </div>
+      <div id="budgetDisplay"></div>
     </div>
-    <div id="budgetDisplay"></div>
-  </div>
 
-  <div class="card mb-4">
-    <div class="section-title">Exportar & Herramientas</div>
-    <div class="flex flex-wrap gap-2">
-      <button class="btn btn-secondary btn-sm" onclick="copyAISummary()">✏️ Resumen para AI</button>
-      <button class="btn btn-secondary btn-sm" onclick="exportExpensesCSV()">⬇ CSV Gastos</button>
-      <button class="btn btn-secondary btn-sm" onclick="exportIncomeCSV()">⬇ CSV Ingresos</button>
-      <button class="btn btn-secondary btn-sm" onclick="monthClose()">✅ Cierre de mes</button>
-      <button class="btn btn-secondary btn-sm" onclick="exportBackup()">💾 Respaldo</button>
-      <label class="btn btn-secondary btn-sm" style="cursor:pointer">⬆ Importar <input type="file" accept=".json" class="hidden" onchange="importBackup(event)" /></label>
+    <!-- Export buttons -->
+    <div class="card mb-4">
+      <div class="section-title">Exportar & Herramientas</div>
+      <div class="flex flex-wrap gap-2">
+        <button class="btn btn-secondary btn-sm" onclick="copyAISummary()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Resumen para AI
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="exportExpensesCSV()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV Gastos
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="exportIncomeCSV()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV Ingresos
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="monthClose()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Cierre de mes
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="exportBackup()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Respaldo completo
+        </button>
+        <label class="btn btn-secondary btn-sm" style="cursor:pointer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Importar respaldo
+          <input type="file" accept=".json" class="hidden" onchange="importBackup(event)" />
+        </label>
+      </div>
+    </div>
+
+    <!-- Expense History on dashboard -->
+    <div class="card mb-4">
+      <div class="section-title">Historial de Gastos</div>
+      <div class="hist-wrap" id="expenseHistDash"></div>
+    </div>
+
+    <!-- Income History on dashboard -->
+    <div class="card">
+      <div class="section-title">Historial de Ingresos</div>
+      <div class="hist-wrap" id="incomeHistDash"></div>
     </div>
   </div>
 
-  <div class="card mb-4">
-    <div class="section-title">Historial de Gastos</div>
-    <div class="hist-wrap" id="expenseHistDash"></div>
-  </div>
-  <div class="card">
-    <div class="section-title">Historial de Ingresos</div>
-    <div class="hist-wrap" id="incomeHistDash"></div>
-  </div>
-</div>
-
-<!-- ===== GASTOS ===== -->
-<div id="tab-expenses" class="section">
-  <div class="card mb-4 fade-in">
-    <div class="section-title" id="expFormTitle">Nuevo Gasto</div>
-    <div class="flex flex-col gap-3">
-      <!-- Tipo de pago toggle -->
-      <div>
-        <label>Tipo de pago</label>
-        <div class="toggle-group">
-          <button class="toggle-btn tc active" id="toggleTC" onclick="setPaymentType('TC')">💳 Tarjeta de Crédito</button>
-          <button class="toggle-btn" id="toggleDB" onclick="setPaymentType('DB')">🏦 Débito / Efectivo</button>
-        </div>
-      </div>
-      <div>
-        <label for="expDate">Fecha</label>
-        <input type="date" id="expDate" />
-      </div>
-      <div>
-        <label for="expDesc">Descripción</label>
-        <input type="text" id="expDesc" placeholder="Ej: Supermercado Jumbo" maxlength="120" />
-      </div>
-      <div class="grid grid-cols-2 gap-3">
+  <!-- ============================================================ EXPENSES ============================================================ -->
+  <div id="tab-expenses" class="section">
+    <div class="card mb-4 fade-in">
+      <div class="section-title" id="expFormTitle">Nuevo Gasto</div>
+      <div class="flex flex-col gap-3">
         <div>
-          <label for="expAmount" id="expAmountLabel">Monto total de la compra (CLP)</label>
-          <input type="number" id="expAmount" placeholder="Ej: 120000" min="1" step="1" oninput="updateInstallmentPreview()" />
-          <div id="expCuotaDisplay" class="hidden mono text-xs mt-1" style="color:var(--purple)"></div>
+          <label for="expDate">Fecha</label>
+          <input type="date" id="expDate" />
         </div>
-        <!-- Cuotas (solo TC) -->
-        <div id="installmentsWrap" class="flex flex-col gap-2">
-          <div>
-            <label for="expInstallments">Cuotas</label>
-            <select id="expInstallments" onchange="updateInstallmentPreview()">
-              <option value="1">1 (contado)</option>
-              <option value="2">2 cuotas</option>
-              <option value="3">3 cuotas</option>
-              <option value="4">4 cuotas</option>
-              <option value="5">5 cuotas</option>
-              <option value="6">6 cuotas</option>
-              <option value="7">7 cuotas</option>
-              <option value="8">8 cuotas</option>
-              <option value="9">9 cuotas</option>
-              <option value="10">10 cuotas</option>
-              <option value="11">11 cuotas</option>
-              <option value="12">12 cuotas</option>
-              <option value="15">15 cuotas</option>
-              <option value="18">18 cuotas</option>
-              <option value="24">24 cuotas</option>
-              <option value="36">36 cuotas</option>
-            </select>
-          </div>
-          <label id="mes0Wrap" class="hidden flex items-center gap-2 cursor-pointer" style="color:var(--text)">
-            <input type="checkbox" id="expMes0" onchange="updateInstallmentPreview()" />
-            <span style="font-size:13px">Mes 0 (cuotas cobran desde el mes siguiente)</span>
-          </label>
+        <div>
+          <label for="expDesc">Descripción</label>
+          <input type="text" id="expDesc" placeholder="Ej: Supermercado Jumbo" maxlength="120" />
+        </div>
+        <div>
+          <label for="expAmount">Monto (CLP)</label>
+          <input type="number" id="expAmount" placeholder="Ej: 45000" min="1" step="1" />
+        </div>
+        <div>
+          <label for="expCat">Categoría</label>
+          <select id="expCat" onchange="handleExpCatChange()"></select>
+        </div>
+        <div id="newCatWrap" class="hidden flex gap-2">
+          <input type="text" id="newCatInput" placeholder="Nueva categoría..." />
+          <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewCategory()">Agregar</button>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary flex-1" id="expSubmitBtn" onclick="submitExpense()">Agregar gasto</button>
+          <button class="btn btn-secondary hidden" id="expCancelBtn" onclick="cancelEditExpense()">Cancelar</button>
         </div>
       </div>
-      <!-- Preview cuotas -->
-      <div id="installmentPreview" class="hidden" style="background:rgba(163,113,247,.08);border:1px solid rgba(163,113,247,.2);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--purple)"></div>
-      <div>
-        <label for="expCat">Categoría</label>
-        <select id="expCat" onchange="handleExpCatChange()"></select>
-      </div>
-      <div id="newCatWrap" class="hidden flex gap-2">
-        <input type="text" id="newCatInput" placeholder="Nueva categoría..." />
-        <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewCategory()">Agregar</button>
-      </div>
-      <!-- Opciones TC -->
-      <div id="tcOptions" class="flex flex-col gap-2" onchange="handleTCOptionsChange()">
-        <label class="flex items-center gap-2 cursor-pointer" style="color:var(--text)">
-          <input type="checkbox" id="expIsClau" onchange="handleClauChange()" />
-          <span style="font-size:14px">Pagado por Clau (ella lo ingresará al fondo)</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer" style="color:var(--text)">
-          <input type="checkbox" id="expTCPaid" />
-          <span style="font-size:14px">Ya pagado al banco (libera cupo)</span>
-        </label>
-        <div id="tcPaidHint" class="hidden text-xs mt-1 p-2 rounded" style="background:rgba(63,185,80,.08);color:var(--muted);border:1px solid rgba(63,185,80,.2)">
-          💡 El abono a la TC también debes registrarlo como un Gasto (categoría "Pago TC") para que afecte el saldo del fondo.
+    </div>
+
+    <div class="card fade-in">
+      <div class="section-title">Historial de Gastos</div>
+      <div class="hist-wrap" id="expenseHistFull"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ INCOME ============================================================ -->
+  <div id="tab-income" class="section">
+    <div class="card mb-4 fade-in">
+      <div class="section-title" id="incFormTitle">Nuevo Ingreso</div>
+      <div class="flex flex-col gap-3">
+        <div>
+          <label for="incDate">Fecha</label>
+          <input type="date" id="incDate" />
+        </div>
+        <div>
+          <label for="incDesc">Descripción</label>
+          <input type="text" id="incDesc" placeholder="Ej: Sueldo mayo" maxlength="120" />
+        </div>
+        <div>
+          <label for="incAmount">Monto (CLP)</label>
+          <input type="number" id="incAmount" placeholder="Ej: 1500000" min="1" step="1" />
+        </div>
+        <div>
+          <label for="incSource">Fuente</label>
+          <select id="incSource" onchange="handleIncSourceChange()"></select>
+        </div>
+        <div id="newSourceWrap" class="hidden flex gap-2">
+          <input type="text" id="newSourceInput" placeholder="Nueva fuente..." />
+          <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewSource()">Agregar</button>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-primary flex-1" id="incSubmitBtn" onclick="submitIncome()">Agregar ingreso</button>
+          <button class="btn btn-secondary hidden" id="incCancelBtn" onclick="cancelEditIncome()">Cancelar</button>
         </div>
       </div>
-      <!-- Clau link (solo si isClau) -->
-      <div id="clauLinkWrap" class="hidden clau-link">
-        <div style="font-size:12px;margin-bottom:4px;color:var(--muted)">Si Clau ya lo ingresó al fondo, vincúlalo aquí para marcarlo como saldado:</div>
-        <select id="clauLinkSelect" style="margin-top:4px">
-          <option value="">— Sin vincular —</option>
-        </select>
+    </div>
+
+    <div class="card fade-in">
+      <div class="section-title">Historial de Ingresos</div>
+      <div class="hist-wrap" id="incomeHistFull"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================ CHARTS ============================================================ -->
+  <div id="tab-charts" class="section">
+    <div class="card mb-4 fade-in">
+      <div class="section-title">Distribución por Categoría</div>
+      <div class="chart-box" style="max-height:320px">
+        <canvas id="chartPie"></canvas>
       </div>
-      <div class="flex gap-2">
-        <button class="btn btn-primary flex-1" id="expSubmitBtn" onclick="submitExpe
+      <div id="chartPieEmpty" class="empty hidden">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        No hay gastos registrados para este mes.
+      </div>
+    </div>
+
+    <div class="card mb-4 fade-in">
+      <div class="section-title">Ingresos vs Gastos</div>
+      <div class="chart-box" style="max-height:280px">
+        <canvas id="chartBar"></canvas>
+      </div>
+      <div id="chartBarEmpty" class="empty hidden">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        No hay datos para este mes.
+      </div>
+    </div>
+
+    <div class="card fade-in">
+      <div class="section-title">Evolución acumulada de Gastos</div>
+      <div class="chart-box" style="max-height:280px">
+        <canvas id="chartLine"></canvas>
+      </div>
+      <div id="chartLineEmpty" class="empty hidden">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        No hay gastos para visualizar.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================ SETTINGS ============================================================ -->
+  <div id="tab-settings" class="section fade-in">
+    <div class="card mb-4">
+      <div class="section-title">Gestión de Categorías</div>
+      <div class="flex gap-2 mb-3">
+        <input type="text" id="newCatSettingInput" placeholder="Nueva categoría..." />
+        <button class="btn btn-primary" style="white-space:nowrap" onclick="addCategoryFromSettings()">Agregar</button>
+      </div>
+      <div id="catList" class="flex flex-wrap gap-2"></div>
+    </div>
+
+    <div class="card mb-4">
+      <d
