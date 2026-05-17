@@ -95,7 +95,13 @@ input[type="month"]{max-width:180px;}
     <h3 class="text-base font-semibold mb-2" id="catDeleteTitle">Eliminar categoría</h3>
     <p class="text-sm mb-4" id="catDeleteMsg" style="color:var(--muted)"></p>
     <div class="flex flex-col gap-2">
-      <button class="btn btn-secondary" id="catDeleteMove">Mover gastos a "Otros"</button>
+      <div>
+        <label style="font-size:13px;color:var(--muted);margin-bottom:6px;display:block">Mover gastos a categoría:</label>
+        <div class="flex gap-2">
+          <select id="catDeleteTarget" style="flex:1"></select>
+          <button class="btn btn-secondary" id="catDeleteMove" style="white-space:nowrap">Mover gastos</button>
+        </div>
+      </div>
       <button class="btn btn-danger" id="catDeleteAll">Eliminar también los gastos</button>
       <button class="btn btn-ghost" id="catDeleteCancel">Cancelar</button>
     </div>
@@ -268,19 +274,25 @@ input[type="month"]{max-width:180px;}
           <input type="number" id="expAmount" placeholder="Ej: 120000" min="1" step="1" oninput="updateInstallmentPreview()" />
         </div>
         <!-- Cuotas (solo TC) -->
-        <div id="installmentsWrap">
-          <label for="expInstallments">Cuotas</label>
-          <select id="expInstallments" onchange="updateInstallmentPreview()">
-            <option value="1">1 (contado)</option>
-            <option value="2">2 cuotas</option>
-            <option value="3">3 cuotas</option>
-            <option value="4">4 cuotas</option>
-            <option value="6">6 cuotas</option>
-            <option value="9">9 cuotas</option>
-            <option value="12">12 cuotas</option>
-            <option value="18">18 cuotas</option>
-            <option value="24">24 cuotas</option>
-          </select>
+        <div id="installmentsWrap" class="flex flex-col gap-2">
+          <div>
+            <label for="expInstallments">Cuotas</label>
+            <select id="expInstallments" onchange="updateInstallmentPreview()">
+              <option value="1">1 (contado)</option>
+              <option value="2">2 cuotas</option>
+              <option value="3">3 cuotas</option>
+              <option value="4">4 cuotas</option>
+              <option value="6">6 cuotas</option>
+              <option value="9">9 cuotas</option>
+              <option value="12">12 cuotas</option>
+              <option value="18">18 cuotas</option>
+              <option value="24">24 cuotas</option>
+            </select>
+          </div>
+          <label id="mes0Wrap" class="hidden flex items-center gap-2 cursor-pointer" style="color:var(--text)">
+            <input type="checkbox" id="expMes0" onchange="updateInstallmentPreview()" />
+            <span style="font-size:13px">Mes 0 (cuotas cobran desde el mes siguiente)</span>
+          </label>
         </div>
       </div>
       <!-- Preview cuotas -->
@@ -839,10 +851,14 @@ function renderIncomeHistory(containerId){
 function markTCPaid(id){
   const e=state.expenses.find(x=>x.id===id);
   if(!e) return;
-  if(!confirm(`¿Marcar "${e.description}" (${fmt(e.amount)}) como abonado a la TC?`)) return;
+  const cuotaLabel=e.installments>1?` (cuota ${e.installmentNum}/${e.installments}, ${fmt(e.amount)})`:'';
+  if(!confirm(`¿Marcar como pagada al banco?
+"${e.description}"${cuotaLabel}
+
+Recuerda registrar el abono como gasto "Pago TC" si aún no lo has hecho.`)) return;
   e.tcPaid=true; e.updatedAt=new Date().toISOString();
   saveAll(); renderAll();
-  showToast('Marcado como abonado a TC ✓','var(--accent)');
+  showToast('Cuota marcada como pagada al banco ✓','var(--accent)');
 }
 window.markTCPaid=markTCPaid;
 
@@ -862,12 +878,28 @@ function updateInstallmentPreview(){
   const amount=Number(document.getElementById('expAmount').value);
   const installments=Number(document.getElementById('expInstallments').value)||1;
   const preview=document.getElementById('installmentPreview');
+  const mes0Wrap=document.getElementById('mes0Wrap');
+  // Show mes0 checkbox only when >1 cuota
+  if(mes0Wrap) mes0Wrap.classList.toggle('hidden', currentPayType!=='TC'||installments<=1);
   if(currentPayType!=='TC'||installments<=1||!amount){ preview.classList.add('hidden'); return; }
+  const mes0=document.getElementById('expMes0')?.checked||false;
   const cuota=Math.round(amount/installments);
-  const month=document.getElementById('expDate').value?.slice(0,7)||selectedMonth;
-  let html=`<strong>Compra en ${installments} cuotas sin interés de ${fmt(cuota)}:</strong><br>`;
-  for(let i=0;i<installments;i++){
-    html+=`${addMonths(month,i)}: ${fmt(cuota)}`+(i<installments-1?' · ':'');
+  const baseDate=document.getElementById('expDate').value||todayStr();
+  const baseMonth=baseDate.slice(0,7);
+  let html=`<strong>${installments} cuotas sin interés de ${fmt(cuota)}</strong>`;
+  if(mes0) html+=` <span style="color:var(--muted)">(cuotas desde ${addMonths(baseMonth,1)})</span>`;
+  html+='<br>';
+  if(mes0){
+    // mes0: cuotas start next month, no charge recorded for current month
+    for(let i=0;i<installments;i++){
+      html+=i===0?'':' · ';
+      html+=`${addMonths(baseMonth,i+1)}: ${fmt(cuota)}`;
+    }
+  } else {
+    for(let i=0;i<installments;i++){
+      html+=i===0?'':' · ';
+      html+=`${addMonths(baseMonth,i)}: ${fmt(cuota)}`;
+    }
   }
   preview.innerHTML=html; preview.classList.remove('hidden');
 }
@@ -949,6 +981,7 @@ function submitExpense(){
   if(!amount||amount<=0){showToast('Monto inválido','var(--danger)');return;}
   if(!cat||cat==='__new__'){showToast('Categoría inválida','var(--danger)');return;}
 
+  const mes0 = payType==='TC' && installments>1 && (document.getElementById('expMes0')?.checked||false);
   const baseMonth=date.slice(0,7);
   const cuota=installments>1?Math.round(amount/installments):amount;
 
@@ -986,7 +1019,11 @@ function submitExpense(){
     const groupId=uid();
     for(let n=0;n<installments;n++){
       const id=uid();
-      const installDate=n===0?date:addMonths(baseMonth,n)+'-01';
+      // mes0: cuotas start next month → n=0 maps to baseMonth+1
+      // normal: n=0 uses the original date (day preserved), rest use 1st of month
+      const installDate=mes0
+        ? addMonths(baseMonth,n+1)+'-01'
+        : (n===0 ? date : addMonths(baseMonth,n)+'-01');
       const entry={
         id, groupId:installments>1?groupId:undefined,
         date:installDate, description:desc,
@@ -1019,6 +1056,8 @@ function resetExpenseForm(){
   document.getElementById('expDesc').value='';
   document.getElementById('expAmount').value='';
   document.getElementById('expInstallments').value='1';
+  const mes0cb=document.getElementById('expMes0'); if(mes0cb) mes0cb.checked=false;
+  const mes0wr=document.getElementById('mes0Wrap'); if(mes0wr) mes0wr.classList.add('hidden');
   document.getElementById('expIsClau').checked=false;
   document.getElementById('expTCPaid').checked=false;
   document.getElementById('clauLinkWrap').classList.add('hidden');
@@ -1245,13 +1284,20 @@ function deleteCategory(cat){
   const modal=document.getElementById('catDeleteModal');
   document.getElementById('catDeleteTitle').textContent=`Eliminar "${cat}"`;
   document.getElementById('catDeleteMsg').textContent=`Esta categoría tiene ${affected.length} gasto(s). ¿Qué deseas hacer?`;
+  // Populate target select with all other categories
+  const targetSel=document.getElementById('catDeleteTarget');
+  targetSel.innerHTML=state.categories
+    .filter(c=>c!==cat)
+    .map(c=>`<option value="${c}" ${c==='Otros'?'selected':''}>${c}</option>`)
+    .join('');
   modal.classList.add('open');
   document.getElementById('catDeleteMove').onclick=()=>{
-    state.expenses=state.expenses.map(e=>e.category===cat?{...e,category:'Otros'}:e);
+    const target=targetSel.value||'Otros';
+    state.expenses=state.expenses.map(e=>e.category===cat?{...e,category:target}:e);
     state.categories=state.categories.filter(c=>c!==cat);
     saveAll(); modal.classList.remove('open');
     renderAll(); renderCategoryList(); renderCatSelect(); renderRenameCatSelect();
-    showToast('Gastos movidos a "Otros"','var(--accent)');
+    showToast(`Gastos movidos a "${target}" ✓`,'var(--accent)');
   };
   document.getElementById('catDeleteAll').onclick=()=>{
     if(!confirm(`¿Eliminar también los ${affected.length} gasto(s)?`)) return;
