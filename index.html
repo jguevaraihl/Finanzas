@@ -9,184 +9,87 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
-  :root {
-    --bg:       #0d1117;
-    --surface:  #161b22;
-    --border:   #21262d;
-    --muted:    #8b949e;
-    --text:     #e6edf3;
-    --accent:   #3fb950;
-    --accent2:  #388bfd;
-    --danger:   #f85149;
-    --warn:     #d29922;
-    --card:     #1c2128;
-  }
-  * { box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-  }
-  .mono { font-family: 'DM Mono', monospace; }
-
-  /* ── NAV ── */
-  .nav-tab {
-    display: flex; align-items: center; justify-content: center;
-    padding: 10px 0; gap: 5px; cursor: pointer; font-size: 12px; font-weight: 500;
-    color: var(--muted); border-bottom: 2px solid transparent;
-    transition: color .2s, border-color .2s;
-    flex: 1;
-  }
-  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .nav-tab svg { width:18px; height:18px; }
-
-  /* ── SECTION ── */
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* ── CARD ── */
-  .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-  }
-
-  /* ── INPUTS ── */
-  input, select, textarea {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 8px;
-    padding: 10px 12px;
-    width: 100%;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    transition: border-color .15s;
-    min-height: 44px;
-  }
-  input:focus, select:focus { outline: none; border-color: var(--accent2); }
-  input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.7); }
-  label { font-size: 13px; color: var(--muted); margin-bottom: 4px; display: block; font-weight: 500; }
-
-  /* ── BUTTONS ── */
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 11px 18px; border-radius: 8px; font-weight: 600;
-    font-size: 14px; cursor: pointer; border: none; min-height: 44px;
-    transition: opacity .15s, transform .1s;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .btn:active { transform: scale(.97); }
-  .btn-primary { background: var(--accent); color: #0d1117; }
-  .btn-primary:hover { opacity: .88; }
-  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { border-color: var(--muted); }
-  .btn-danger { background: var(--danger); color: #fff; }
-  .btn-danger:hover { opacity: .85; }
-  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 8px; min-height: 36px; min-width: 36px; border-radius: 6px; }
-  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
-  .btn-blue { background: var(--accent2); color: #fff; }
-  .btn-blue:hover { opacity: .88; }
-  .btn-sm { padding: 6px 12px; font-size: 13px; min-height: 34px; }
-
-  /* ── METRIC CARDS ── */
-  .metric { border-radius: 10px; padding: 14px 16px; }
-  .metric-label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
-  .metric-value { font-size: 22px; font-weight: 700; margin-top: 4px; mono; }
-
-  /* ── PROGRESS BAR ── */
-  .prog-track { background: var(--surface); border-radius: 999px; height: 10px; overflow: hidden; margin-top: 8px; }
-  .prog-fill { height: 100%; border-radius: 999px; transition: width .4s ease; }
-
-  /* ── HISTORY TABLE ── */
-  .hist-wrap { max-height: 300px; overflow-y: auto; overflow-x: auto; border-radius: 8px; }
-  .hist-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
-  .hist-wrap::-webkit-scrollbar-track { background: var(--surface); }
-  .hist-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { color: var(--muted); font-weight: 600; text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; position: sticky; top:0; background: var(--card); z-index: 1; }
-  td { padding: 9px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-
-  /* ── BADGE ── */
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; background: rgba(56,139,253,.15); color: var(--accent2); }
-  .badge-green { background: rgba(63,185,80,.12); color: var(--accent); }
-  .badge-red { background: rgba(248,81,73,.12); color: var(--danger); }
-  .badge-orange { background: rgba(210,153,34,.12); color: var(--warn); }
-
-  /* ── TOAST ── */
-  #toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: var(--card); border: 1px solid var(--border);
-    color: var(--text); padding: 12px 20px; border-radius: 10px;
-    font-size: 14px; font-weight: 500; z-index: 9999;
-    transition: transform .25s ease, opacity .25s;
-    opacity: 0; pointer-events: none; max-width: 90vw; text-align: center;
-  }
-  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-  /* ── CHART CONTAINERS ── */
-  .chart-box { position: relative; }
-
-  /* ── CATEGORY PILL ── */
-  .cat-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 10px 5px 12px; border-radius: 999px;
-    background: var(--surface); border: 1px solid var(--border);
-    font-size: 13px;
-  }
-
-  /* ── ANIMATIONS ── */
-  @keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
-  .fade-in { animation: fadeIn .2s ease both; }
-
-  /* ── SCROLLBAR GLOBAL ── */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* ── MONTH INPUT ── */
-  input[type="month"] { max-width: 180px; }
-
-  /* ── SECTION HEADER ── */
-  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 12px; }
-
-  /* ── EMPTY STATE ── */
-  .empty { text-align: center; padding: 28px 16px; color: var(--muted); font-size: 14px; }
-  .empty svg { margin: 0 auto 10px; opacity: .35; }
-
-  /* ── MODAL OVERLAY ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,.65); z-index: 500;
-    align-items: center; justify-content: center; padding: 16px;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; width: 100%; max-width: 420px; animation: fadeIn .2s ease; }
-
-  /* ── HEADER GRADIENT ── */
-  .app-header {
-    background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
-    border-bottom: 1px solid var(--border);
-  }
+:root{--bg:#0d1117;--surface:#161b22;--border:#21262d;--muted:#8b949e;--text:#e6edf3;--accent:#3fb950;--accent2:#388bfd;--danger:#f85149;--warn:#d29922;--card:#1c2128;--purple:#a371f7;}
+*{box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.mono{font-family:'DM Mono',monospace;}
+.nav-tab{display:flex;align-items:center;justify-content:center;padding:10px 0;gap:4px;cursor:pointer;font-size:11px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;transition:color .2s,border-color .2s;flex:1;}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.nav-tab svg{width:17px;height:17px;}
+.section{display:none;}
+.section.active{display:block;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;}
+input,select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;width:100%;font-family:'DM Sans',sans-serif;font-size:15px;transition:border-color .15s;min-height:44px;}
+input:focus,select:focus{outline:none;border-color:var(--accent2);}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7);}
+input[type="checkbox"]{width:18px;min-height:18px;height:18px;accent-color:var(--accent);cursor:pointer;}
+input[type="range"]{min-height:20px;padding:4px 0;}
+label{font-size:13px;color:var(--muted);margin-bottom:4px;display:block;font-weight:500;}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;border:none;min-height:44px;transition:opacity .15s,transform .1s;font-family:'DM Sans',sans-serif;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:#0d1117;}
+.btn-primary:hover{opacity:.88;}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--muted);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{opacity:.85;}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px;min-height:36px;min-width:36px;border-radius:6px;}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted);}
+.btn-blue{background:var(--accent2);color:#fff;}
+.btn-blue:hover{opacity:.88;}
+.btn-purple{background:var(--purple);color:#fff;}
+.btn-sm{padding:6px 12px;font-size:13px;min-height:34px;}
+.metric{border-radius:10px;padding:14px 16px;}
+.metric-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;}
+.metric-value{font-size:22px;font-weight:700;margin-top:4px;}
+.prog-track{background:var(--surface);border-radius:999px;height:10px;overflow:hidden;margin-top:8px;}
+.prog-fill{height:100%;border-radius:999px;transition:width .4s ease;}
+.hist-wrap{max-height:320px;overflow-y:auto;overflow-x:auto;border-radius:8px;}
+.hist-wrap::-webkit-scrollbar,.chart-scroll::-webkit-scrollbar{width:6px;height:6px;}
+.hist-wrap::-webkit-scrollbar-track,.chart-scroll::-webkit-scrollbar-track{background:var(--surface);}
+.hist-wrap::-webkit-scrollbar-thumb,.chart-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;background:var(--card);z-index:1;}
+td{padding:9px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;background:rgba(56,139,253,.15);color:var(--accent2);}
+.badge-green{background:rgba(63,185,80,.12);color:var(--accent);}
+.badge-red{background:rgba(248,81,73,.12);color:var(--danger);}
+.badge-orange{background:rgba(210,153,34,.12);color:var(--warn);}
+.badge-purple{background:rgba(163,113,247,.15);color:var(--purple);}
+.badge-gray{background:rgba(139,148,158,.12);color:var(--muted);}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--border);color:var(--text);padding:12px 20px;border-radius:10px;font-size:14px;font-weight:500;z-index:9999;transition:transform .25s ease,opacity .25s;opacity:0;pointer-events:none;max-width:90vw;text-align:center;}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.chart-box{position:relative;}
+.cat-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:13px;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn .2s ease both;}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+input[type="month"]{max-width:180px;}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:12px;}
+.empty{text-align:center;padding:28px 16px;color:var(--muted);font-size:14px;}
+.empty svg{margin:0 auto 10px;opacity:.35;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:440px;animation:fadeIn .2s ease;max-height:90vh;overflow-y:auto;}
+.app-header{background:linear-gradient(135deg,#161b22 0%,#0d1117 100%);border-bottom:1px solid var(--border);}
+.tc-indicator{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 8px;border-radius:6px;}
+.clau-link{background:rgba(163,113,247,.12);border:1px dashed rgba(163,113,247,.4);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--purple);}
+.toggle-group{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.toggle-btn{flex:1;padding:9px 12px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--muted);transition:all .15s;font-family:'DM Sans',sans-serif;min-height:42px;}
+.toggle-btn.active{background:var(--accent2);color:#fff;}
+.toggle-btn.active.tc{background:var(--purple);}
 </style>
 </head>
 <body>
 
-<!-- ── TOAST ── -->
 <div id="toast"></div>
 
-<!-- Loading screen -->
-<div id="appLoading" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:16px">
-  <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
-  <div style="color:var(--muted);font-size:14px">Conectando con la nube...</div>
-</div>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-
-<!-- ── MODAL (Categoría / Fuente eliminación con gastos) ── -->
+<!-- Modal categoría con gastos -->
 <div class="modal-overlay" id="catDeleteModal">
   <div class="modal-box">
     <h3 class="text-base font-semibold mb-2" id="catDeleteTitle">Eliminar categoría</h3>
@@ -199,27 +102,53 @@
   </div>
 </div>
 
-<!-- ── APP HEADER ── -->
-<div class="app-header px-4 py-4">
+<!-- Modal Clau: vincular gasto <-> ingreso -->
+<div class="modal-overlay" id="clauModal">
+  <div class="modal-box">
+    <h3 class="text-base font-semibold mb-3">Vincular Gasto ↔ Ingreso Clau</h3>
+    <p class="text-sm mb-4" style="color:var(--muted)" id="clauModalDesc"></p>
+    <div id="clauModalList" class="flex flex-col gap-2 mb-4" style="max-height:260px;overflow-y:auto;"></div>
+    <div class="flex gap-2">
+      <button class="btn btn-ghost flex-1" onclick="closeClauModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cupo TC -->
+<div class="modal-overlay" id="tcModal">
+  <div class="modal-box">
+    <h3 class="text-base font-semibold mb-3">Configurar Tarjeta de Crédito</h3>
+    <div class="flex flex-col gap-3">
+      <div>
+        <label>Cupo total de la TC (CLP)</label>
+        <input type="number" id="tcLimitInput" min="1" step="1000" />
+      </div>
+      <button class="btn btn-primary" onclick="saveTCLimit()">Guardar cupo</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('tcModal').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP HEADER -->
+<div class="app-header px-4 py-3">
   <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <div class="text-xs font-semibold uppercase tracking-widest mb-1" style="color:var(--accent)">Fondo Común</div>
+        <div class="text-xs font-semibold uppercase tracking-widest mb-0.5" style="color:var(--accent)">Fondo Común</div>
         <h1 class="text-xl font-bold tracking-tight">Finanzas de Pareja</h1>
       </div>
       <div class="flex items-center gap-2">
-        <label class="sr-only" for="monthSelector">Mes</label>
-        <span id="syncSpinner" style="opacity:0;transition:opacity .2s;margin-right:6px">
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2.5" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
-</span>
-<span id="syncStatus" style="font-size:11px;margin-right:8px;color:var(--muted)">Conectando...</span>
-<input type="month" id="monthSelector" class="text-sm font-medium" style="max-width:160px" />
+        <span id="syncSpinner" style="opacity:0;transition:opacity .2s">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent2)" stroke-width="2.5" style="animation:spin .7s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        </span>
+        <span id="syncStatus" style="font-size:11px;color:var(--muted)">Conectando...</span>
+        <input type="month" id="monthSelector" class="text-sm font-medium" style="max-width:150px" />
       </div>
     </div>
   </div>
 </div>
 
-<!-- ── BOTTOM NAV TABS ── -->
+<!-- NAV TABS -->
 <div style="position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border)">
   <div class="max-w-2xl mx-auto flex">
     <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">
@@ -245,225 +174,247 @@
   </div>
 </div>
 
-<!-- ── MAIN CONTENT ── -->
+<div id="appLoading" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:16px">
+  <div style="width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
+  <div style="color:var(--muted);font-size:14px">Conectando con la nube...</div>
+</div>
+
 <main class="max-w-2xl mx-auto px-4 py-4 pb-10">
+<div id="appContent" style="display:none">
 
-  <!-- ============================================================ DASHBOARD ============================================================ -->
-  <div id="appContent" style="display:none"><div id="tab-dashboard" class="section active">
+<!-- ===== DASHBOARD ===== -->
+<div id="tab-dashboard" class="section active">
 
-    <!-- Metrics grid -->
-    <div class="grid grid-cols-2 gap-3 mb-4">
-      <div class="metric card col-span-2" id="metSaldo"></div>
-      <div class="metric card" id="metIngresos"></div>
-      <div class="metric card" id="metGastos"></div>
-      <div class="metric card" id="metPct"></div>
-      <div class="metric card" id="metTopCat"></div>
-      <div class="metric card" id="metDailyAvg"></div>
-      <div class="metric card" id="metProjection"></div>
-    </div>
-
-    <!-- Budget -->
-    <div class="card mb-4" id="budgetSection">
-      <div class="section-title">Presupuesto mensual</div>
-      <div class="flex gap-2 mb-3">
-        <input type="number" id="budgetInput" placeholder="Ej: 1500000" min="1" step="1" />
-        <button class="btn btn-primary" style="white-space:nowrap" onclick="saveBudget()">Guardar</button>
+  <!-- TC Banner -->
+  <div id="tcBanner" class="card mb-3" style="border-color:rgba(163,113,247,.3);background:rgba(163,113,247,.05);">
+    <div class="flex items-center justify-between flex-wrap gap-2">
+      <div>
+        <div class="metric-label" style="color:var(--purple)">Tarjeta de Crédito</div>
+        <div id="tcBannerContent"></div>
       </div>
-      <div id="budgetDisplay"></div>
+      <button class="btn btn-sm" style="background:rgba(163,113,247,.15);color:var(--purple);border:1px solid rgba(163,113,247,.3)" onclick="document.getElementById('tcModal').classList.add('open');document.getElementById('tcLimitInput').value=state.settings.tcLimit||3100000">⚙ Configurar cupo</button>
     </div>
+    <div id="tcProgTrack" class="prog-track mt-2"></div>
+  </div>
 
-    <!-- Export buttons -->
-    <div class="card mb-4">
-      <div class="section-title">Exportar & Herramientas</div>
-      <div class="flex flex-wrap gap-2">
-        <button class="btn btn-secondary btn-sm" onclick="copyAISummary()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Resumen para AI
-        </button>
-        <button class="btn btn-secondary btn-sm" onclick="exportExpensesCSV()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          CSV Gastos
-        </button>
-        <button class="btn btn-secondary btn-sm" onclick="exportIncomeCSV()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          CSV Ingresos
-        </button>
-        <button class="btn btn-secondary btn-sm" onclick="monthClose()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Cierre de mes
-        </button>
-        <button class="btn btn-secondary btn-sm" onclick="exportBackup()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          Respaldo completo
-        </button>
-        <label class="btn btn-secondary btn-sm" style="cursor:pointer">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          Importar respaldo
-          <input type="file" accept=".json" class="hidden" onchange="importBackup(event)" />
+  <!-- Clau balance banner -->
+  <div id="clauBanner" class="clau-link mb-3 flex items-center justify-between gap-2" style="display:none!important"></div>
+
+  <div class="grid grid-cols-2 gap-3 mb-4">
+    <div class="metric card col-span-2" id="metSaldo"></div>
+    <div class="metric card" id="metIngresos"></div>
+    <div class="metric card" id="metGastos"></div>
+    <div class="metric card" id="metPct"></div>
+    <div class="metric card" id="metTopCat"></div>
+    <div class="metric card" id="metDailyAvg"></div>
+    <div class="metric card" id="metProjection"></div>
+  </div>
+
+  <div class="card mb-4" id="budgetSection">
+    <div class="section-title">Presupuesto mensual</div>
+    <div class="flex gap-2 mb-3">
+      <input type="number" id="budgetInput" placeholder="Ej: 1500000" min="1" step="1" />
+      <button class="btn btn-primary" style="white-space:nowrap" onclick="saveBudget()">Guardar</button>
+    </div>
+    <div id="budgetDisplay"></div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="section-title">Exportar & Herramientas</div>
+    <div class="flex flex-wrap gap-2">
+      <button class="btn btn-secondary btn-sm" onclick="copyAISummary()">✏️ Resumen para AI</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportExpensesCSV()">⬇ CSV Gastos</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportIncomeCSV()">⬇ CSV Ingresos</button>
+      <button class="btn btn-secondary btn-sm" onclick="monthClose()">✅ Cierre de mes</button>
+      <button class="btn btn-secondary btn-sm" onclick="exportBackup()">💾 Respaldo</button>
+      <label class="btn btn-secondary btn-sm" style="cursor:pointer">⬆ Importar <input type="file" accept=".json" class="hidden" onchange="importBackup(event)" /></label>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="section-title">Historial de Gastos</div>
+    <div class="hist-wrap" id="expenseHistDash"></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Historial de Ingresos</div>
+    <div class="hist-wrap" id="incomeHistDash"></div>
+  </div>
+</div>
+
+<!-- ===== GASTOS ===== -->
+<div id="tab-expenses" class="section">
+  <div class="card mb-4 fade-in">
+    <div class="section-title" id="expFormTitle">Nuevo Gasto</div>
+    <div class="flex flex-col gap-3">
+      <!-- Tipo de pago toggle -->
+      <div>
+        <label>Tipo de pago</label>
+        <div class="toggle-group">
+          <button class="toggle-btn tc active" id="toggleTC" onclick="setPaymentType('TC')">💳 Tarjeta de Crédito</button>
+          <button class="toggle-btn" id="toggleDB" onclick="setPaymentType('DB')">🏦 Débito / Efectivo</button>
+        </div>
+      </div>
+      <div>
+        <label for="expDate">Fecha</label>
+        <input type="date" id="expDate" />
+      </div>
+      <div>
+        <label for="expDesc">Descripción</label>
+        <input type="text" id="expDesc" placeholder="Ej: Supermercado Jumbo" maxlength="120" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="expAmount">Monto total (CLP)</label>
+          <input type="number" id="expAmount" placeholder="Ej: 120000" min="1" step="1" oninput="updateInstallmentPreview()" />
+        </div>
+        <!-- Cuotas (solo TC) -->
+        <div id="installmentsWrap">
+          <label for="expInstallments">Cuotas</label>
+          <select id="expInstallments" onchange="updateInstallmentPreview()">
+            <option value="1">1 (contado)</option>
+            <option value="2">2 cuotas</option>
+            <option value="3">3 cuotas</option>
+            <option value="4">4 cuotas</option>
+            <option value="6">6 cuotas</option>
+            <option value="9">9 cuotas</option>
+            <option value="12">12 cuotas</option>
+            <option value="18">18 cuotas</option>
+            <option value="24">24 cuotas</option>
+          </select>
+        </div>
+      </div>
+      <!-- Preview cuotas -->
+      <div id="installmentPreview" class="hidden" style="background:rgba(163,113,247,.08);border:1px solid rgba(163,113,247,.2);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--purple)"></div>
+      <div>
+        <label for="expCat">Categoría</label>
+        <select id="expCat" onchange="handleExpCatChange()"></select>
+      </div>
+      <div id="newCatWrap" class="hidden flex gap-2">
+        <input type="text" id="newCatInput" placeholder="Nueva categoría..." />
+        <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewCategory()">Agregar</button>
+      </div>
+      <!-- Opciones TC -->
+      <div id="tcOptions" class="flex flex-col gap-2" onchange="handleTCOptionsChange()">
+        <label class="flex items-center gap-2 cursor-pointer" style="color:var(--text)">
+          <input type="checkbox" id="expIsClau" onchange="handleClauChange()" />
+          <span style="font-size:14px">Pagado por Clau (ella lo ingresará al fondo)</span>
         </label>
-      </div>
-    </div>
-
-    <!-- Expense History on dashboard -->
-    <div class="card mb-4">
-      <div class="section-title">Historial de Gastos</div>
-      <div class="hist-wrap" id="expenseHistDash"></div>
-    </div>
-
-    <!-- Income History on dashboard -->
-    <div class="card">
-      <div class="section-title">Historial de Ingresos</div>
-      <div class="hist-wrap" id="incomeHistDash"></div>
-    </div>
-  </div>
-
-  <!-- ============================================================ EXPENSES ============================================================ -->
-  <div id="tab-expenses" class="section">
-    <div class="card mb-4 fade-in">
-      <div class="section-title" id="expFormTitle">Nuevo Gasto</div>
-      <div class="flex flex-col gap-3">
-        <div>
-          <label for="expDate">Fecha</label>
-          <input type="date" id="expDate" />
-        </div>
-        <div>
-          <label for="expDesc">Descripción</label>
-          <input type="text" id="expDesc" placeholder="Ej: Supermercado Jumbo" maxlength="120" />
-        </div>
-        <div>
-          <label for="expAmount">Monto (CLP)</label>
-          <input type="number" id="expAmount" placeholder="Ej: 45000" min="1" step="1" />
-        </div>
-        <div>
-          <label for="expCat">Categoría</label>
-          <select id="expCat" onchange="handleExpCatChange()"></select>
-        </div>
-        <div id="newCatWrap" class="hidden flex gap-2">
-          <input type="text" id="newCatInput" placeholder="Nueva categoría..." />
-          <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewCategory()">Agregar</button>
-        </div>
-        <div class="flex gap-2">
-          <button class="btn btn-primary flex-1" id="expSubmitBtn" onclick="submitExpense()">Agregar gasto</button>
-          <button class="btn btn-secondary hidden" id="expCancelBtn" onclick="cancelEditExpense()">Cancelar</button>
+        <label class="flex items-center gap-2 cursor-pointer" style="color:var(--text)">
+          <input type="checkbox" id="expTCPaid" />
+          <span style="font-size:14px">Ya pagado al banco (libera cupo)</span>
+        </label>
+        <div id="tcPaidHint" class="hidden text-xs mt-1 p-2 rounded" style="background:rgba(63,185,80,.08);color:var(--muted);border:1px solid rgba(63,185,80,.2)">
+          💡 El abono a la TC también debes registrarlo como un Gasto (categoría "Pago TC") para que afecte el saldo del fondo.
         </div>
       </div>
-    </div>
-
-    <div class="card fade-in">
-      <div class="section-title">Historial de Gastos</div>
-      <div class="hist-wrap" id="expenseHistFull"></div>
-    </div>
-  </div>
-
-  <!-- ============================================================ INCOME ============================================================ -->
-  <div id="tab-income" class="section">
-    <div class="card mb-4 fade-in">
-      <div class="section-title" id="incFormTitle">Nuevo Ingreso</div>
-      <div class="flex flex-col gap-3">
-        <div>
-          <label for="incDate">Fecha</label>
-          <input type="date" id="incDate" />
-        </div>
-        <div>
-          <label for="incDesc">Descripción</label>
-          <input type="text" id="incDesc" placeholder="Ej: Sueldo mayo" maxlength="120" />
-        </div>
-        <div>
-          <label for="incAmount">Monto (CLP)</label>
-          <input type="number" id="incAmount" placeholder="Ej: 1500000" min="1" step="1" />
-        </div>
-        <div>
-          <label for="incSource">Fuente</label>
-          <select id="incSource" onchange="handleIncSourceChange()"></select>
-        </div>
-        <div id="newSourceWrap" class="hidden flex gap-2">
-          <input type="text" id="newSourceInput" placeholder="Nueva fuente..." />
-          <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewSource()">Agregar</button>
-        </div>
-        <div class="flex gap-2">
-          <button class="btn btn-primary flex-1" id="incSubmitBtn" onclick="submitIncome()">Agregar ingreso</button>
-          <button class="btn btn-secondary hidden" id="incCancelBtn" onclick="cancelEditIncome()">Cancelar</button>
-        </div>
+      <!-- Clau link (solo si isClau) -->
+      <div id="clauLinkWrap" class="hidden clau-link">
+        <div style="font-size:12px;margin-bottom:4px;color:var(--muted)">Si Clau ya lo ingresó al fondo, vincúlalo aquí para marcarlo como saldado:</div>
+        <select id="clauLinkSelect" style="margin-top:4px">
+          <option value="">— Sin vincular —</option>
+        </select>
       </div>
-    </div>
-
-    <div class="card fade-in">
-      <div class="section-title">Historial de Ingresos</div>
-      <div class="hist-wrap" id="incomeHistFull"></div>
-    </div>
-  </div>
-
-  <!-- ============================================================ CHARTS ============================================================ -->
-  <div id="tab-charts" class="section">
-    <div class="card mb-4 fade-in">
-      <div class="section-title">Distribución por Categoría</div>
-      <div class="chart-box" style="max-height:320px">
-        <canvas id="chartPie"></canvas>
-      </div>
-      <div id="chartPieEmpty" class="empty hidden">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-        No hay gastos registrados para este mes.
-      </div>
-    </div>
-
-    <div class="card mb-4 fade-in">
-      <div class="section-title">Ingresos vs Gastos</div>
-      <div class="chart-box" style="max-height:280px">
-        <canvas id="chartBar"></canvas>
-      </div>
-      <div id="chartBarEmpty" class="empty hidden">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-        No hay datos para este mes.
-      </div>
-    </div>
-
-    <div class="card fade-in">
-      <div class="section-title">Evolución acumulada de Gastos</div>
-      <div class="chart-box" style="max-height:280px">
-        <canvas id="chartLine"></canvas>
-      </div>
-      <div id="chartLineEmpty" class="empty hidden">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-        No hay gastos para visualizar.
+      <div class="flex gap-2">
+        <button class="btn btn-primary flex-1" id="expSubmitBtn" onclick="submitExpense()">Agregar gasto</button>
+        <button class="btn btn-secondary hidden" id="expCancelBtn" onclick="cancelEditExpense()">Cancelar</button>
       </div>
     </div>
   </div>
+  <div class="card fade-in">
+    <div class="section-title">Historial de Gastos</div>
+    <div class="hist-wrap" id="expenseHistFull"></div>
+  </div>
+</div>
 
-  <!-- ============================================================ SETTINGS ============================================================ -->
-  <div id="tab-settings" class="section fade-in">
-    <div class="card mb-4">
-      <div class="section-title">Gestión de Categorías</div>
-      <div class="flex gap-2 mb-3">
-        <input type="text" id="newCatSettingInput" placeholder="Nueva categoría..." />
-        <button class="btn btn-primary" style="white-space:nowrap" onclick="addCategoryFromSettings()">Agregar</button>
+<!-- ===== INGRESOS ===== -->
+<div id="tab-income" class="section">
+  <div class="card mb-4 fade-in">
+    <div class="section-title" id="incFormTitle">Nuevo Ingreso</div>
+    <div class="flex flex-col gap-3">
+      <div><label for="incDate">Fecha</label><input type="date" id="incDate" /></div>
+      <div><label for="incDesc">Descripción</label><input type="text" id="incDesc" placeholder="Ej: Sueldo mayo" maxlength="120" /></div>
+      <div><label for="incAmount">Monto (CLP)</label><input type="number" id="incAmount" placeholder="Ej: 1500000" min="1" step="1" /></div>
+      <div>
+        <label for="incSource">Fuente</label>
+        <select id="incSource" onchange="handleIncSourceChange()"></select>
       </div>
-      <div id="catList" class="flex flex-wrap gap-2"></div>
-    </div>
-
-    <div class="card mb-4">
-      <div class="section-title">Fuentes de Ingreso</div>
-      <div class="flex gap-2 mb-3">
-        <input type="text" id="newSourceSettingInput" placeholder="Nueva fuente..." />
-        <button class="btn btn-primary" style="white-space:nowrap" onclick="addSourceFromSettings()">Agregar</button>
+      <div id="newSourceWrap" class="hidden flex gap-2">
+        <input type="text" id="newSourceInput" placeholder="Nueva fuente..." />
+        <button class="btn btn-secondary" style="white-space:nowrap" onclick="addNewSource()">Agregar</button>
       </div>
-      <div id="sourceList" class="flex flex-wrap gap-2"></div>
-    </div>
-
-    <div class="card">
-      <div class="section-title">Información</div>
-      <p class="text-xs" style="color:var(--muted)">Los datos se almacenan localmente en este navegador. Usa "Respaldo completo" para guardar una copia externa.</p>
+      <!-- Vincular a gasto Clau -->
+      <div id="clauIncLinkWrap" class="hidden clau-link">
+        <div style="font-size:12px;margin-bottom:4px;color:var(--muted)">Vincular con gasto Clau pendiente:</div>
+        <select id="clauIncLinkSelect" style="margin-top:4px"><option value="">— Sin vincular —</option></select>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-primary flex-1" id="incSubmitBtn" onclick="submitIncome()">Agregar ingreso</button>
+        <button class="btn btn-secondary hidden" id="incCancelBtn" onclick="cancelEditIncome()">Cancelar</button>
+      </div>
     </div>
   </div>
+  <div class="card fade-in">
+    <div class="section-title">Historial de Ingresos</div>
+    <div class="hist-wrap" id="incomeHistFull"></div>
+  </div>
+</div>
+
+<!-- ===== GRÁFICOS ===== -->
+<div id="tab-charts" class="section">
+  <div class="card mb-4 fade-in">
+    <div class="section-title">Distribución por Categoría</div>
+    <canvas id="chartPie"></canvas>
+    <div id="chartPieEmpty" class="empty hidden"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay gastos este mes.</div>
+  </div>
+  <div class="card mb-4 fade-in">
+    <div class="section-title">Ingresos vs Gastos</div>
+    <canvas id="chartBar"></canvas>
+    <div id="chartBarEmpty" class="empty hidden"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay datos este mes.</div>
+  </div>
+  <div class="card fade-in">
+    <div class="section-title">Evolución acumulada de Gastos</div>
+    <canvas id="chartLine"></canvas>
+    <div id="chartLineEmpty" class="empty hidden"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay gastos para visualizar.</div>
+  </div>
+</div>
+
+<!-- ===== CONFIG ===== -->
+<div id="tab-settings" class="section fade-in">
+  <div class="card mb-4">
+    <div class="section-title">Categorías de Gastos</div>
+    <div class="flex gap-2 mb-3">
+      <input type="text" id="newCatSettingInput" placeholder="Nueva categoría..." />
+      <button class="btn btn-primary" style="white-space:nowrap" onclick="addCategoryFromSettings()">Agregar</button>
+    </div>
+    <div id="catList" class="flex flex-wrap gap-2"></div>
+  </div>
+  <div class="card mb-4">
+    <div class="section-title">Renombrar Categoría</div>
+    <div class="flex gap-2">
+      <select id="renameCatFrom" style="flex:1"></select>
+      <input type="text" id="renameCatTo" placeholder="Nuevo nombre..." style="flex:1" />
+      <button class="btn btn-blue" style="white-space:nowrap" onclick="renameCategory()">Renombrar</button>
+    </div>
+  </div>
+  <div class="card mb-4">
+    <div class="section-title">Fuentes de Ingreso</div>
+    <div class="flex gap-2 mb-3">
+      <input type="text" id="newSourceSettingInput" placeholder="Nueva fuente..." />
+      <button class="btn btn-primary" style="white-space:nowrap" onclick="addSourceFromSettings()">Agregar</button>
+    </div>
+    <div id="sourceList" class="flex flex-wrap gap-2"></div>
+  </div>
+  <div class="card">
+    <div class="section-title">Información</div>
+    <p class="text-xs" style="color:var(--muted)">Datos sincronizados en tiempo real con Firebase. Usa "Respaldo" para una copia local.</p>
+  </div>
+</div>
 
 </div><!-- /appContent -->
 </main>
-
 <script type="module">
-/* ================================================================
-   FIREBASE CONFIG
-================================================================ */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, writeBatch }
+import { getFirestore, doc, getDoc, setDoc, onSnapshot }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -474,22 +425,18 @@ const firebaseConfig = {
   messagingSenderId: "381792587588",
   appId: "1:381792587588:web:a1379dae8722a2908bd111"
 };
-
 const fbApp = initializeApp(firebaseConfig);
 const db    = getFirestore(fbApp);
-
-// Firestore document references (single-doc per collection for simplicity)
 const DOCS = {
   expenses:      doc(db,'finanzas','expenses'),
   income:        doc(db,'finanzas','income'),
   categories:    doc(db,'finanzas','categories'),
   incomeSources: doc(db,'finanzas','incomeSources'),
   budgets:       doc(db,'finanzas','budgets'),
+  settings:      doc(db,'finanzas','settings'),
 };
 
-/* ================================================================
-   PRE-LOADED DATA FROM EXCEL (seed only on first run)
-================================================================ */
+/* ── EXCEL SEED DATA ── */
 // ── PRE-LOADED DATA FROM EXCEL ──
 const EXCEL_EXPENSES = [{"id":"a25dce45-d9d","date":"2026-01-01","description":"Contribuciones 4/6","amount":63377,"category":"Hogar","createdAt":"2026-05-09T03:48:33.137235","updatedAt":"2026-05-09T03:48:33.137241"},{"id":"1f222a52-312","date":"2026-01-01","description":"Parche Clau 3/3","amount":9467,"category":"Salud","createdAt":"2026-05-09T03:48:33.137390","updatedAt":"2026-05-09T03:48:33.137393"},{"id":"ac4969d2-fa2","date":"2026-01-01","description":"Iphone Clau 3/6","amount":166665,"category":"Otros","createdAt":"2026-05-09T03:48:33.137576","updatedAt":"2026-05-09T03:48:33.137580"},{"id":"a0d7a9c7-88f","date":"2026-01-02","description":"Mercado Libre 3/3","amount":23649,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.137700","updatedAt":"2026-05-09T03:48:33.137703"},{"id":"dcb09edc-8fb","date":"2026-01-02","description":"Martín 2/6","amount":10677,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.137828","updatedAt":"2026-05-09T03:48:33.137831"},{"id":"ad11407c-0bb","date":"2026-01-02","description":"Martín 2/6","amount":547,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.137944","updatedAt":"2026-05-09T03:48:33.137946"},{"id":"927e9124-2b2","date":"2026-01-24","description":"Sushi","amount":25500,"category":"Comidas","createdAt":"2026-05-09T03:48:33.138187","updatedAt":"2026-05-09T03:48:33.138192"},{"id":"b69e4805-9f2","date":"2026-01-25","description":"Bencina","amount":36950,"category":"Transporte","createdAt":"2026-05-09T03:48:33.138341","updatedAt":"2026-05-09T03:48:33.138344"},{"id":"f4ade202-cad","date":"2026-01-26","description":"Panaderia (Algarrobo)","amount":14000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.138625","updatedAt":"2026-05-09T03:48:33.138629"},{"id":"68c9ab5b-7e3","date":"2026-01-26","description":"Cafeteria Illy (Algarrobo)","amount":27467,"category":"Comidas","createdAt":"2026-05-09T03:48:33.138758","updatedAt":"2026-05-09T03:48:33.138761"},{"id":"6793b33b-857","date":"2026-01-26","description":"Clau Farmacia (Algarrobo)","amount":7200,"category":"Salud","createdAt":"2026-05-09T03:48:33.138909","updatedAt":"2026-05-09T03:48:33.138912"},{"id":"b0664a7c-d03","date":"2026-01-28","description":"Entel","amount":21990,"category":"Servicios","createdAt":"2026-05-09T03:48:33.139042","updatedAt":"2026-05-09T03:48:33.139045"},{"id":"bef9635f-d1d","date":"2026-01-29","description":"Enel - Luz Bondi","amount":30929,"category":"Servicios","createdAt":"2026-05-09T03:48:33.139168","updatedAt":"2026-05-09T03:48:33.139170"},{"id":"b258ed51-0a8","date":"2026-01-30","description":"Doctor Martín","amount":8191,"category":"Salud","createdAt":"2026-05-09T03:48:33.139298","updatedAt":"2026-05-09T03:48:33.139300"},{"id":"3106252a-9b5","date":"2026-01-30","description":"Supermercado","amount":25731,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.139448","updatedAt":"2026-05-09T03:48:33.139452"},{"id":"e604956d-216","date":"2026-01-30","description":"Clau Doctor","amount":1536,"category":"Salud","createdAt":"2026-05-09T03:48:33.139600","updatedAt":"2026-05-09T03:48:33.139603"},{"id":"475fefa5-33f","date":"2026-01-30","description":"Estacionamiento","amount":1200,"category":"Transporte","createdAt":"2026-05-09T03:48:33.139714","updatedAt":"2026-05-09T03:48:33.139717"},{"id":"a738f192-457","date":"2026-01-30","description":"Panaderia","amount":3865,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.139837","updatedAt":"2026-05-09T03:48:33.139840"},{"id":"5252d095-94b","date":"2026-01-02","description":"Supermercado","amount":22020,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.140198","updatedAt":"2026-05-09T03:48:33.140202"},{"id":"3aff052d-df1","date":"2026-01-02","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.140322","updatedAt":"2026-05-09T03:48:33.140325"},{"id":"a7bb2d13-1e4","date":"2026-01-04","description":"Clau Brinca","amount":22000,"category":"Otros","createdAt":"2026-05-09T03:48:33.140483","updatedAt":"2026-05-09T03:48:33.140487"},{"id":"1345a9f7-4b6","date":"2026-01-05","description":"Clau Farmacia","amount":20319,"category":"Salud","createdAt":"2026-05-09T03:48:33.140623","updatedAt":"2026-05-09T03:48:33.140626"},{"id":"a90d3dac-e65","date":"2026-01-05","description":"Clau Doctor","amount":1831,"category":"Salud","createdAt":"2026-05-09T03:48:33.140831","updatedAt":"2026-05-09T03:48:33.140835"},{"id":"fb513cef-f4d","date":"2026-01-05","description":"Supermercado","amount":36862,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.140945","updatedAt":"2026-05-09T03:48:33.140948"},{"id":"4657260d-c96","date":"2026-01-05","description":"Clau Farmacia","amount":12373,"category":"Salud","createdAt":"2026-05-09T03:48:33.141066","updatedAt":"2026-05-09T03:48:33.141069"},{"id":"a6071d1c-5e2","date":"2026-01-05","description":"Estacionamiento","amount":800,"category":"Transporte","createdAt":"2026-05-09T03:48:33.141175","updatedAt":"2026-05-09T03:48:33.141178"},{"id":"50949370-558","date":"2026-01-05","description":"Clau Farmacia","amount":39285,"category":"Salud","createdAt":"2026-05-09T03:48:33.141295","updatedAt":"2026-05-09T03:48:33.141298"},{"id":"551eb2b4-681","date":"2026-01-05","description":"Autopista","amount":2377,"category":"Otros","createdAt":"2026-05-09T03:48:33.141450","updatedAt":"2026-05-09T03:48:33.141454"},{"id":"e407132e-0d8","date":"2026-01-06","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.141589","updatedAt":"2026-05-09T03:48:33.141592"},{"id":"472bc20b-597","date":"2026-01-06","description":"Kiosco","amount":3780,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.141705","updatedAt":"2026-05-09T03:48:33.141707"},{"id":"3456665b-4f3","date":"2026-01-06","description":"Vestua Clau","amount":14050,"category":"Otros","createdAt":"2026-05-09T03:48:33.141840","updatedAt":"2026-05-09T03:48:33.141843"},{"id":"e2abbc27-130","date":"2026-01-06","description":"Retiro Escombros","amount":13950,"category":"Hogar","createdAt":"2026-05-09T03:48:33.141956","updatedAt":"2026-05-09T03:48:33.141959"},{"id":"46666240-b73","date":"2026-01-06","description":"Gas Bondi","amount":6037,"category":"Otros","createdAt":"2026-05-09T03:48:33.142079","updatedAt":"2026-05-09T03:48:33.142082"},{"id":"0b613c6a-e0b","date":"2026-01-07","description":"Adobe Clau","amount":12138,"category":"Otros","createdAt":"2026-05-09T03:48:33.142260","updatedAt":"2026-05-09T03:48:33.142264"},{"id":"448d23b5-a32","date":"2026-01-08","description":"Deuda internacional","amount":14064,"category":"Hogar","createdAt":"2026-05-09T03:48:33.142389","updatedAt":"2026-05-09T03:48:33.142392"},{"id":"b385834f-056","date":"2026-01-09","description":"Cocacola","amount":30604,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.142549","updatedAt":"2026-05-09T03:48:33.142552"},{"id":"8da980e9-2c5","date":"2026-01-09","description":"Bencina","amount":45688,"category":"Transporte","createdAt":"2026-05-09T03:48:33.142745","updatedAt":"2026-05-09T03:48:33.142748"},{"id":"db0c03b0-900","date":"2026-01-10","description":"Falabella Matrimonio Darí","amount":100000,"category":"Entretención","createdAt":"2026-05-09T03:48:33.142864","updatedAt":"2026-05-09T03:48:33.142866"},{"id":"3fb17391-1ee","date":"2026-01-11","description":"Agua Bondi","amount":37110,"category":"Servicios","createdAt":"2026-05-09T03:48:33.142980","updatedAt":"2026-05-09T03:48:33.142983"},{"id":"3748e0ae-3b5","date":"2026-01-11","description":"Agua La capitanía","amount":9620,"category":"Servicios","createdAt":"2026-05-09T03:48:33.143100","updatedAt":"2026-05-09T03:48:33.143103"},{"id":"5c454b95-f04","date":"2026-01-12","description":"Mercado Libre","amount":25959,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.143295","updatedAt":"2026-05-09T03:48:33.143299"},{"id":"fbde5383-3d0","date":"2026-01-13","description":"Verduras","amount":19023,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.143492","updatedAt":"2026-05-09T03:48:33.143497"},{"id":"e726c05d-862","date":"2026-01-13","description":"Copec Mercado libre","amount":30000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.143665","updatedAt":"2026-05-09T03:48:33.143668"},{"id":"557be235-9a6","date":"2026-01-13","description":"Verduras","amount":8696,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.143793","updatedAt":"2026-05-09T03:48:33.143796"},{"id":"515d9cbe-b9a","date":"2026-01-13","description":"Verduras","amount":6450,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.143905","updatedAt":"2026-05-09T03:48:33.143907"},{"id":"1e9ab54f-7d9","date":"2026-01-13","description":"Copec Mercado libre","amount":20000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.144017","updatedAt":"2026-05-09T03:48:33.144020"},{"id":"3bf55e6e-8f5","date":"2026-01-14","description":"Estadio Español","amount":101500,"category":"Entretención","createdAt":"2026-05-09T03:48:33.144166","updatedAt":"2026-05-09T03:48:33.144171"},{"id":"e39122ac-63f","date":"2026-01-15","description":"Supermercado","amount":30231,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.144312","updatedAt":"2026-05-09T03:48:33.144315"},{"id":"ae45ef04-c28","date":"2026-01-15","description":"Casa Ideas","amount":22995,"category":"Hogar","createdAt":"2026-05-09T03:48:33.144474","updatedAt":"2026-05-09T03:48:33.144477"},{"id":"e9e9b257-0c3","date":"2026-01-16","description":"Estacionamiento","amount":1386,"category":"Transporte","createdAt":"2026-05-09T03:48:33.144683","updatedAt":"2026-05-09T03:48:33.144686"},{"id":"347f1450-766","date":"2026-01-16","description":"Tramite la Capitania","amount":12000,"category":"Otros","createdAt":"2026-05-09T03:48:33.144818","updatedAt":"2026-05-09T03:48:33.144821"},{"id":"10e983f2-a3a","date":"2026-01-16","description":"Angélica","amount":70000,"category":"Salud","createdAt":"2026-05-09T03:48:33.144978","updatedAt":"2026-05-09T03:48:33.144982"},{"id":"52187cf7-57e","date":"2026-01-17","description":"Telefonica Chile","amount":5480,"category":"Otros","createdAt":"2026-05-09T03:48:33.145106","updatedAt":"2026-05-09T03:48:33.145109"},{"id":"ab2b84a1-da1","date":"2026-01-18","description":"Enel","amount":15708,"category":"Servicios","createdAt":"2026-05-09T03:48:33.145224","updatedAt":"2026-05-09T03:48:33.145227"},{"id":"92fbe90b-8d6","date":"2026-01-18","description":"Mercado Libre 18/01/26 1/12","amount":1584,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.145334","updatedAt":"2026-05-09T03:48:33.145337"},{"id":"276811fe-4da","date":"2026-01-18","description":"Mercado Libre 18/01/26 1/12","amount":264,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.145478","updatedAt":"2026-05-09T03:48:33.145482"},{"id":"9f185c4b-4cd","date":"2026-01-19","description":"Mercado pago clinica las condes","amount":300,"category":"Transporte","createdAt":"2026-05-09T03:48:33.145600","updatedAt":"2026-05-09T03:48:33.145603"},{"id":"344a7298-2d0","date":"2026-01-19","description":"Viña del mar valparaiso","amount":17990,"category":"Otros","createdAt":"2026-05-09T03:48:33.145743","updatedAt":"2026-05-09T03:48:33.145746"},{"id":"59917ba9-fca","date":"2026-01-20","description":"Estacionamiento","amount":2570,"category":"Transporte","createdAt":"2026-05-09T03:48:33.145856","updatedAt":"2026-05-09T03:48:33.145858"},{"id":"3c254901-c51","date":"2026-01-20","description":"Remedios Balto y Líquido lentes","amount":41720,"category":"Hogar","createdAt":"2026-05-09T03:48:33.145965","updatedAt":"2026-05-09T03:48:33.145967"},{"id":"e1e0c843-cc2","date":"2026-01-20","description":"Pañales Diego y Martín","amount":100942,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.146073","updatedAt":"2026-05-09T03:48:33.146076"},{"id":"b2380990-768","date":"2026-01-20","description":"Ikea","amount":36930,"category":"Hogar","createdAt":"2026-05-09T03:48:33.146338","updatedAt":"2026-05-09T03:48:33.146342"},{"id":"1bec9090-d51","date":"2026-01-21","description":"Lider","amount":33350,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.146520","updatedAt":"2026-05-09T03:48:33.146523"},{"id":"1d7b272f-dc3","date":"2026-01-21","description":"Verduras","amount":20470,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.146647","updatedAt":"2026-05-09T03:48:33.146650"},{"id":"26b93538-dce","date":"2026-01-22","description":"Entel","amount":17733,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.146773","updatedAt":"2026-05-09T03:48:33.146776"},{"id":"0f7da7e6-626","date":"2026-02-01","description":"Contribuciones 5/6","amount":63377,"category":"Hogar","createdAt":"2026-05-09T03:48:33.190345","updatedAt":"2026-05-09T03:48:33.190350"},{"id":"16d534a1-90f","date":"2026-02-02","description":"Iphone Clau 4/6","amount":166665,"category":"Otros","createdAt":"2026-05-09T03:48:33.190506","updatedAt":"2026-05-09T03:48:33.190509"},{"id":"aeb681dd-bd2","date":"2026-02-02","description":"Martín 3/6","amount":10677,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.190613","updatedAt":"2026-05-09T03:48:33.190615"},{"id":"5411c384-6c4","date":"2026-02-02","description":"Martín 3/6","amount":547,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.190734","updatedAt":"2026-05-09T03:48:33.190737"},{"id":"90206e75-b46","date":"2026-02-02","description":"Mercado Libre 18/01/26 2/12","amount":1584,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.190842","updatedAt":"2026-05-09T03:48:33.190844"},{"id":"5d13d199-ff8","date":"2026-02-03","description":"Mercado Libre 18/01/26 2/12","amount":264,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.190936","updatedAt":"2026-05-09T03:48:33.190939"},{"id":"1b42c343-5bf","date":"2026-02-03","description":"Closet Ikea 1/3","amount":256650,"category":"Hogar","createdAt":"2026-05-09T03:48:33.191032","updatedAt":"2026-05-09T03:48:33.191034"},{"id":"368c5a25-e71","date":"2026-02-04","description":"Mercado Libre","amount":42306,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.191249","updatedAt":"2026-05-09T03:48:33.191252"},{"id":"5f73daf2-fa6","date":"2026-02-04","description":"Ropa Martín","amount":8000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.191358","updatedAt":"2026-05-09T03:48:33.191360"},{"id":"d230356c-264","date":"2026-02-04","description":"Supermercado","amount":13993,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.191494","updatedAt":"2026-05-09T03:48:33.191498"},{"id":"c66eeeef-d07","date":"2026-02-04","description":"Clau Regalo Luisa","amount":21990,"category":"Otros","createdAt":"2026-05-09T03:48:33.191610","updatedAt":"2026-05-09T03:48:33.191613"},{"id":"f87261f9-254","date":"2026-02-05","description":"Clau Donat","amount":3600,"category":"Otros","createdAt":"2026-05-09T03:48:33.191717","updatedAt":"2026-05-09T03:48:33.191719"},{"id":"ae77db43-34a","date":"2026-02-05","description":"Estacionamiento","amount":2200,"category":"Transporte","createdAt":"2026-05-09T03:48:33.191822","updatedAt":"2026-05-09T03:48:33.191824"},{"id":"f0dc0789-c2e","date":"2026-02-05","description":"Consulta Martín (hacer reembolso)","amount":70720,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.191939","updatedAt":"2026-05-09T03:48:33.191942"},{"id":"9d9359dc-4d5","date":"2026-02-05","description":"Clau Vestua (DEBEN DEVOLVER)","amount":5810,"category":"Otros","createdAt":"2026-05-09T03:48:33.192046","updatedAt":"2026-05-09T03:48:33.192109"},{"id":"9cc76a9e-cb9","date":"2026-02-06","description":"Estacionamineto","amount":800,"category":"Transporte","createdAt":"2026-05-09T03:48:33.192248","updatedAt":"2026-05-09T03:48:33.192251"},{"id":"794f8ac7-e1e","date":"2026-02-06","description":"Supermercado","amount":34443,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.192377","updatedAt":"2026-05-09T03:48:33.192380"},{"id":"03b36478-a84","date":"2026-02-06","description":"Clau Vestua (DEBEN DEVOLVER)","amount":2520,"category":"Otros","createdAt":"2026-05-09T03:48:33.192543","updatedAt":"2026-05-09T03:48:33.192546"},{"id":"fbed98f8-748","date":"2026-02-07","description":"Ikea","amount":45000,"category":"Hogar","createdAt":"2026-05-09T03:48:33.192715","updatedAt":"2026-05-09T03:48:33.192717"},{"id":"17a20f1f-d64","date":"2026-02-07","description":"Bencina","amount":43547,"category":"Transporte","createdAt":"2026-05-09T03:48:33.192818","updatedAt":"2026-05-09T03:48:33.192820"},{"id":"71a8c62c-228","date":"2026-02-07","description":"Clau Chalas","amount":12980,"category":"Otros","createdAt":"2026-05-09T03:48:33.192927","updatedAt":"2026-05-09T03:48:33.192930"},{"id":"b258c129-757","date":"2026-02-03","description":"Leche Martín (Copec)","amount":30000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.193032","updatedAt":"2026-05-09T03:48:33.193035"},{"id":"be62916c-313","date":"2026-02-03","description":"Leche Martín (Copec)","amount":10000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.193153","updatedAt":"2026-05-09T03:48:33.193156"},{"id":"314a0f7b-071","date":"2026-02-05","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.193385","updatedAt":"2026-05-09T03:48:33.193388"},{"id":"0bf8c269-204","date":"2026-02-06","description":"Autopista central","amount":2800,"category":"Otros","createdAt":"2026-05-09T03:48:33.193538","updatedAt":"2026-05-09T03:48:33.193542"},{"id":"0e862a4f-1c2","date":"2026-02-06","description":"Supermercado Loncoche","amount":138784,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.193635","updatedAt":"2026-05-09T03:48:33.193638"},{"id":"d0015104-ba0","date":"2026-02-07","description":"Adobe","amount":12138,"category":"Otros","createdAt":"2026-05-09T03:48:33.193763","updatedAt":"2026-05-09T03:48:33.193766"},{"id":"0b478252-6c6","date":"2026-02-09","description":"Saira Enero","amount":110000,"category":"Salud","createdAt":"2026-05-09T03:48:33.193865","updatedAt":"2026-05-09T03:48:33.193867"},{"id":"9977239f-e65","date":"2026-02-09","description":"Leches Martin (Juaco)","amount":40000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.193958","updatedAt":"2026-05-09T03:48:33.193961"},{"id":"00216df9-cf5","date":"2026-02-10","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.194082","updatedAt":"2026-05-09T03:48:33.194087"},{"id":"c69baac9-661","date":"2026-02-10","description":"Estadio Español","amount":101500,"category":"Entretención","createdAt":"2026-05-09T03:48:33.194345","updatedAt":"2026-05-09T03:48:33.194349"},{"id":"098288ac-a88","date":"2026-02-11","description":"Sticker","amount":6500,"category":"Otros","createdAt":"2026-05-09T03:48:33.194511","updatedAt":"2026-05-09T03:48:33.194514"},{"id":"70920c5e-e23","date":"2026-02-11","description":"Farmacia Clau","amount":26567,"category":"Salud","createdAt":"2026-05-09T03:48:33.194624","updatedAt":"2026-05-09T03:48:33.194627"},{"id":"4f391687-dce","date":"2026-02-11","description":"Farmacia Clau","amount":7847,"category":"Salud","createdAt":"2026-05-09T03:48:33.194736","updatedAt":"2026-05-09T03:48:33.194739"},{"id":"20d660e5-a08","date":"2026-02-11","description":"Deuda Internacional","amount":34861,"category":"Otros","createdAt":"2026-05-09T03:48:33.194849","updatedAt":"2026-05-09T03:48:33.194852"},{"id":"9cb49378-447","date":"2026-02-12","description":"Supermercado","amount":50750,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.194944","updatedAt":"2026-05-09T03:48:33.194947"},{"id":"1b5fd5a2-401","date":"2026-02-19","description":"Agua La Capitania","amount":21496,"category":"Servicios","createdAt":"2026-05-09T03:48:33.195054","updatedAt":"2026-05-09T03:48:33.195057"},{"id":"7275c697-e9e","date":"2026-02-23","description":"Autopista Costanera","amount":17044,"category":"Otros","createdAt":"2026-05-09T03:48:33.195228","updatedAt":"2026-05-09T03:48:33.195231"},{"id":"c26d67ab-beb","date":"2026-02-23","description":"Autopista Vespucio Norte","amount":3580,"category":"Otros","createdAt":"2026-05-09T03:48:33.195335","updatedAt":"2026-05-09T03:48:33.195338"},{"id":"ce6ce91c-28a","date":"2026-02-23","description":"Autopista Vespucio Sur","amount":2768,"category":"Otros","createdAt":"2026-05-09T03:48:33.195491","updatedAt":"2026-05-09T03:48:33.195495"},{"id":"bdd1f341-e89","date":"2026-02-23","description":"Autopista Ruta 78","amount":28712,"category":"Otros","createdAt":"2026-05-09T03:48:33.195620","updatedAt":"2026-05-09T03:48:33.195623"},{"id":"2daf6fee-0a6","date":"2026-02-23","description":"Movistar","amount":16990,"category":"Servicios","createdAt":"2026-05-09T03:48:33.195731","updatedAt":"2026-05-09T03:48:33.195734"},{"id":"ac03a2a9-d1e","date":"2026-02-23","description":"Luz La Capitania","amount":49111,"category":"Otros","createdAt":"2026-05-09T03:48:33.195842","updatedAt":"2026-05-09T03:48:33.195844"},{"id":"ad88e23b-411","date":"2026-02-23","description":"Angélica","amount":70000,"category":"Salud","createdAt":"2026-05-09T03:48:33.195954","updatedAt":"2026-05-09T03:48:33.195957"},{"id":"5fbb8ad6-222","date":"2026-02-23","description":"Bencina Huitag (a Juaco)","amount":33530,"category":"Transporte","createdAt":"2026-05-09T03:48:33.196048","updatedAt":"2026-05-09T03:48:33.196050"},{"id":"48d5d85c-4b5","date":"2026-02-23","description":"Queso Huitag (a Juaco)","amount":18000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.196138","updatedAt":"2026-05-09T03:48:33.196141"},{"id":"8b807c6f-5b4","date":"2026-02-23","description":"Luz Bondi","amount":8426,"category":"Otros","createdAt":"2026-05-09T03:48:33.196243","updatedAt":"2026-05-09T03:48:33.196245"},{"id":"3b1426d9-9c2","date":"2026-02-23","description":"Agua Bondi","amount":14140,"category":"Servicios","createdAt":"2026-05-09T03:48:33.196344","updatedAt":"2026-05-09T03:48:33.196347"},{"id":"0948ca82-45c","date":"2026-02-23","description":"Gastos Comunes Enero","amount":259941,"category":"Otros","createdAt":"2026-05-09T03:48:33.196489","updatedAt":"2026-05-09T03:48:33.196493"},{"id":"149e1563-f33","date":"2026-02-24","description":"Agua La Capitania (PAC) DUPLICADO","amount":21496,"category":"Servicios","createdAt":"2026-05-09T03:48:33.196682","updatedAt":"2026-05-09T03:48:33.196686"},{"id":"f58559d0-5f1","date":"2026-03-01","description":"Contribuciones 6/6","amount":63377,"category":"Hogar","createdAt":"2026-05-09T03:48:33.239309","updatedAt":"2026-05-09T03:48:33.239314"},{"id":"e5b6073b-203","date":"2026-03-02","description":"Iphone Clau 5/6","amount":166665,"category":"Otros","createdAt":"2026-05-09T03:48:33.239494","updatedAt":"2026-05-09T03:48:33.239498"},{"id":"e5365d84-092","date":"2026-03-02","description":"Martín 4/6","amount":10677,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.239641","updatedAt":"2026-05-09T03:48:33.239644"},{"id":"eddd895f-026","date":"2026-03-02","description":"Martín 4/6","amount":547,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.239776","updatedAt":"2026-05-09T03:48:33.239779"},{"id":"ffa01b4b-760","date":"2026-03-02","description":"Mercado Libre 18/01/26 3/12","amount":1584,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.239898","updatedAt":"2026-05-09T03:48:33.239900"},{"id":"45ee4e58-bc7","date":"2026-03-02","description":"Mercado Libre 18/01/26 3/6","amount":264,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.240015","updatedAt":"2026-05-09T03:48:33.240017"},{"id":"d278ed3a-ce8","date":"2026-03-03","description":"Closet Ikea 2/3","amount":256650,"category":"Hogar","createdAt":"2026-05-09T03:48:33.240135","updatedAt":"2026-05-09T03:48:33.240138"},{"id":"23c515dd-c9e","date":"2026-03-03","description":"Fruta","amount":2448,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.240254","updatedAt":"2026-05-09T03:48:33.240257"},{"id":"82adbd21-870","date":"2026-03-03","description":"Comida Lúa","amount":53990,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.240384","updatedAt":"2026-05-09T03:48:33.240387"},{"id":"646758ee-5bb","date":"2026-02-26","description":"Alfombra tía Coca","amount":16783,"category":"Otros","createdAt":"2026-05-09T03:48:33.240596","updatedAt":"2026-05-09T03:48:33.240600"},{"id":"4b99dcf5-9f0","date":"2026-02-27","description":"Jumbo","amount":53965,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.240864","updatedAt":"2026-05-09T03:48:33.240868"},{"id":"f2b8c980-4b1","date":"2026-02-28","description":"Lavado de auto","amount":23990,"category":"Transporte","createdAt":"2026-05-09T03:48:33.240988","updatedAt":"2026-05-09T03:48:33.240991"},{"id":"16cb3a9b-262","date":"2026-03-01","description":"Easy cosas","amount":14960,"category":"Hogar","createdAt":"2026-05-09T03:48:33.241250","updatedAt":"2026-05-09T03:48:33.241256"},{"id":"73579cc4-8f8","date":"2026-03-02","description":"Chupetes","amount":13160,"category":"Otros","createdAt":"2026-05-09T03:48:33.241609","updatedAt":"2026-05-09T03:48:33.241614"},{"id":"482e653c-9c6","date":"2026-03-02","description":"Kine piso pélvico","amount":28795,"category":"Salud","createdAt":"2026-05-09T03:48:33.241764","updatedAt":"2026-05-09T03:48:33.241768"},{"id":"ffb17104-e71","date":"2026-03-02","description":"Imperial repisas","amount":15890,"category":"Hogar","createdAt":"2026-05-09T03:48:33.241893","updatedAt":"2026-05-09T03:48:33.241896"},{"id":"8a71eff5-9f7","date":"2026-03-02","description":"Estacionamiento","amount":2000,"category":"Transporte","createdAt":"2026-05-09T03:48:33.242021","updatedAt":"2026-05-09T03:48:33.242024"},{"id":"0dd6f46b-f31","date":"2026-03-02","description":"Easy repisas","amount":8000,"category":"Hogar","createdAt":"2026-05-09T03:48:33.242195","updatedAt":"2026-05-09T03:48:33.242199"},{"id":"1c64f1d2-f50","date":"2026-03-03","description":"Estacionamiento","amount":2000,"category":"Transporte","createdAt":"2026-05-09T03:48:33.242343","updatedAt":"2026-05-09T03:48:33.242346"},{"id":"891c7d64-01e","date":"2026-03-03","description":"Pediatra","amount":8486,"category":"Otros","createdAt":"2026-05-09T03:48:33.242525","updatedAt":"2026-05-09T03:48:33.242529"},{"id":"babc6644-a2c","date":"2026-03-03","description":"Farmacia Clau","amount":35678,"category":"Salud","createdAt":"2026-05-09T03:48:33.242667","updatedAt":"2026-05-09T03:48:33.242670"},{"id":"ffc61113-01c","date":"2026-03-04","description":"Verduras","amount":18060,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.242814","updatedAt":"2026-05-09T03:48:33.242817"},{"id":"96cca7be-646","date":"2026-03-07","description":"Leche emergencia Martín","amount":28200,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.243201","updatedAt":"2026-05-09T03:48:33.243206"},{"id":"366dd8af-7bd","date":"2026-03-07","description":"Sushi","amount":20000,"category":"Comidas","createdAt":"2026-05-09T03:48:33.243448","updatedAt":"2026-05-09T03:48:33.243453"},{"id":"bfa80dbe-15c","date":"2026-03-07","description":"Supermercado","amount":500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.243608","updatedAt":"2026-05-09T03:48:33.243612"},{"id":"ef03803d-895","date":"2026-03-06","description":"Angélica","amount":70000,"category":"Salud","createdAt":"2026-05-09T03:48:33.243752","updatedAt":"2026-05-09T03:48:33.243755"},{"id":"3c0bdbe7-2e0","date":"2026-03-06","description":"Verduritas Trini","amount":6000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.243883","updatedAt":"2026-05-09T03:48:33.243885"},{"id":"0f1f4d04-b27","date":"2026-03-06","description":"Jumbo","amount":22699,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.244050","updatedAt":"2026-05-09T03:48:33.244053"},{"id":"f95a1d61-a2e","date":"2026-03-06","description":"Pronto","amount":13310,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.244171","updatedAt":"2026-05-09T03:48:33.244174"},{"id":"6c1c87d7-3cb","date":"2026-03-06","description":"Bencina","amount":23067,"category":"Transporte","createdAt":"2026-05-09T03:48:33.244293","updatedAt":"2026-05-09T03:48:33.244296"},{"id":"5475bdec-cc3","date":"2026-03-06","description":"Camping","amount":28000,"category":"Otros","createdAt":"2026-05-09T03:48:33.244462","updatedAt":"2026-05-09T03:48:33.244466"},{"id":"332bb892-56f","date":"2026-03-06","description":"Bencina","amount":26161,"category":"Transporte","createdAt":"2026-05-09T03:48:33.244600","updatedAt":"2026-05-09T03:48:33.244603"},{"id":"d8b87ff5-e61","date":"2026-03-07","description":"Adobe","amount":12138,"category":"Otros","createdAt":"2026-05-09T03:48:33.244740","updatedAt":"2026-05-09T03:48:33.244743"},{"id":"934ec991-acb","date":"2026-03-08","description":"Bencina","amount":28531,"category":"Transporte","createdAt":"2026-05-09T03:48:33.244864","updatedAt":"2026-05-09T03:48:33.244867"},{"id":"22500ea7-3dc","date":"2026-03-10","description":"Repisas","amount":11330,"category":"Hogar","createdAt":"2026-05-09T03:48:33.245075","updatedAt":"2026-05-09T03:48:33.245078"},{"id":"28c3d5ef-6b1","date":"2026-03-10","description":"Parque","amount":1000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.245200","updatedAt":"2026-05-09T03:48:33.245203"},{"id":"0bdef0b1-cbb","date":"2026-03-10","description":"Confort","amount":42380,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.245319","updatedAt":"2026-05-09T03:48:33.245322"},{"id":"b8526462-316","date":"2026-03-11","description":"Supermercado","amount":255,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.245476","updatedAt":"2026-05-09T03:48:33.245480"},{"id":"ebbfb628-215","date":"2026-03-11","description":"Dunkin (clau y trini)","amount":3700,"category":"Otros","createdAt":"2026-05-09T03:48:33.245623","updatedAt":"2026-05-09T03:48:33.245627"},{"id":"37d87bde-c98","date":"2026-03-11","description":"Supermercado","amount":27877,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.245862","updatedAt":"2026-05-09T03:48:33.245868"},{"id":"3897286b-876","date":"2026-03-11","description":"Deuda internacional","amount":3575,"category":"Otros","createdAt":"2026-05-09T03:48:33.246094","updatedAt":"2026-05-09T03:48:33.246098"},{"id":"58c01688-37c","date":"2026-03-12","description":"Kiosko","amount":1900,"category":"Otros","createdAt":"2026-05-09T03:48:33.246369","updatedAt":"2026-05-09T03:48:33.246374"},{"id":"39714cef-84b","date":"2026-03-13","description":"Estadio Español","amount":101500,"category":"Entretención","createdAt":"2026-05-09T03:48:33.246633","updatedAt":"2026-05-09T03:48:33.246637"},{"id":"7b6733d8-4fa","date":"2026-03-13","description":"Verduras","amount":24120,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.246855","updatedAt":"2026-05-09T03:48:33.246858"},{"id":"8c884147-ad5","date":"2026-03-13","description":"Clau","amount":1200,"category":"Otros","createdAt":"2026-05-09T03:48:33.247042","updatedAt":"2026-05-09T03:48:33.247047"},{"id":"85b5d8dd-492","date":"2026-03-13","description":"Hamburguesas","amount":28390,"category":"Comidas","createdAt":"2026-05-09T03:48:33.247475","updatedAt":"2026-05-09T03:48:33.247480"},{"id":"1c78bb96-ea2","date":"2026-03-13","description":"Helados","amount":4400,"category":"Entretención","createdAt":"2026-05-09T03:48:33.247842","updatedAt":"2026-05-09T03:48:33.247851"},{"id":"2a453ab3-340","date":"2026-03-14","description":"Uhu (pegamento)","amount":3990,"category":"Hogar","createdAt":"2026-05-09T03:48:33.248374","updatedAt":"2026-05-09T03:48:33.248382"},{"id":"c478f250-f32","date":"2026-03-15","description":"Supermercado","amount":36640,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.249002","updatedAt":"2026-05-09T03:48:33.249015"},{"id":"f2f69d8f-7a5","date":"2026-03-16","description":"Vacuna Martín","amount":89000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.249564","updatedAt":"2026-05-09T03:48:33.249569"},{"id":"d9c6a174-a99","date":"2026-03-16","description":"Doctor Clau","amount":2550,"category":"Salud","createdAt":"2026-05-09T03:48:33.249723","updatedAt":"2026-05-09T03:48:33.249726"},{"id":"c24e6f33-b1d","date":"2026-03-16","description":"Remedios","amount":2329,"category":"Otros","createdAt":"2026-05-09T03:48:33.249867","updatedAt":"2026-05-09T03:48:33.249870"},{"id":"cc510365-2da","date":"2026-03-16","description":"Remedios","amount":7223,"category":"Otros","createdAt":"2026-05-09T03:48:33.250005","updatedAt":"2026-05-09T03:48:33.250008"},{"id":"d95291a1-add","date":"2026-03-16","description":"Estacionamiento","amount":1367,"category":"Transporte","createdAt":"2026-05-09T03:48:33.250128","updatedAt":"2026-05-09T03:48:33.250171"},{"id":"217042af-6cd","date":"2026-03-17","description":"Deuda Trini","amount":14000,"category":"Otros","createdAt":"2026-05-09T03:48:33.250335","updatedAt":"2026-05-09T03:48:33.250338"},{"id":"6cd4fb93-310","date":"2026-03-17","description":"Parque","amount":1000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.250515","updatedAt":"2026-05-09T03:48:33.250519"},{"id":"8b0c78a7-40b","date":"2026-03-17","description":"Supermercado","amount":41057,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.250647","updatedAt":"2026-05-09T03:48:33.250650"},{"id":"d358103c-eac","date":"2026-03-17","description":"Verduras","amount":6480,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.250780","updatedAt":"2026-05-09T03:48:33.250783"},{"id":"9df04e84-e34","date":"2026-03-18","description":"Verduras","amount":16000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.250903","updatedAt":"2026-05-09T03:48:33.250906"},{"id":"e1431e84-74c","date":"2026-03-18","description":"Pan","amount":1890,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.251032","updatedAt":"2026-05-09T03:48:33.251035"},{"id":"0691b638-5e3","date":"2026-03-18","description":"Pan","amount":1490,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.251161","updatedAt":"2026-05-09T03:48:33.251164"},{"id":"c921810d-c6e","date":"2026-03-19","description":"Corte de Pelo Clau","amount":14392,"category":"Otros","createdAt":"2026-05-09T03:48:33.251447","updatedAt":"2026-05-09T03:48:33.251452"},{"id":"76451e08-758","date":"2026-03-19","description":"Estacionamiento","amount":2050,"category":"Transporte","createdAt":"2026-05-09T03:48:33.251706","updatedAt":"2026-05-09T03:48:33.251710"},{"id":"733ef09d-cb5","date":"2026-03-20","description":"Estadio Español","amount":38237,"category":"Comidas","createdAt":"2026-05-09T03:48:33.251844","updatedAt":"2026-05-09T03:48:33.251847"},{"id":"5e44dfa9-be6","date":"2026-03-20","description":"Estacionamiento","amount":3500,"category":"Transporte","createdAt":"2026-05-09T03:48:33.251965","updatedAt":"2026-05-09T03:48:33.251969"},{"id":"19fce1e7-c7b","date":"2026-03-21","description":"Meiggs","amount":3080,"category":"Hogar","createdAt":"2026-05-09T03:48:33.252089","updatedAt":"2026-05-09T03:48:33.252092"},{"id":"53ba69a5-a29","date":"2026-03-21","description":"Meiggs","amount":10170,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.252214","updatedAt":"2026-05-09T03:48:33.252217"},{"id":"ce7b2e9a-daa","date":"2026-03-21","description":"Supermercado","amount":14797,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.252333","updatedAt":"2026-05-09T03:48:33.252336"},{"id":"fe890813-9bf","date":"2026-03-22","description":"Gas","amount":73850,"category":"Otros","createdAt":"2026-05-09T03:48:33.252507","updatedAt":"2026-05-09T03:48:33.252511"},{"id":"9844965b-abd","date":"2026-03-23","description":"Angélica","amount":70000,"category":"Salud","createdAt":"2026-05-09T03:48:33.252648","updatedAt":"2026-05-09T03:48:33.252651"},{"id":"db23db35-a6f","date":"2026-03-18","description":"Kine Clau","amount":31057,"category":"Salud","createdAt":"2026-05-09T03:48:33.252893","updatedAt":"2026-05-09T03:48:33.252897"},{"id":"01175ed1-5b0","date":"2026-03-18","description":"Bencina","amount":38483,"category":"Transporte","createdAt":"2026-05-09T03:48:33.253017","updatedAt":"2026-05-09T03:48:33.253020"},{"id":"6bd852e8-87d","date":"2026-03-18","description":"Verduras","amount":5500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.253135","updatedAt":"2026-05-09T03:48:33.253138"},{"id":"6a2e43ac-f0f","date":"2026-03-19","description":"Jumbo","amount":22100,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.253250","updatedAt":"2026-05-09T03:48:33.253252"},{"id":"01927338-b1a","date":"2026-03-19","description":"Parque","amount":1000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.253495","updatedAt":"2026-05-09T03:48:33.253499"},{"id":"9d2a8825-9a5","date":"2026-03-19","description":"Salcobran","amount":12059,"category":"Otros","createdAt":"2026-05-09T03:48:33.253665","updatedAt":"2026-05-09T03:48:33.253669"},{"id":"808fb7b3-1ce","date":"2026-03-19","description":"Salcobran","amount":4199,"category":"Otros","createdAt":"2026-05-09T03:48:33.253847","updatedAt":"2026-05-09T03:48:33.253850"},{"id":"7aebfc57-be0","date":"2026-03-19","description":"Agua La Capitania","amount":70296,"category":"Servicios","createdAt":"2026-05-09T03:48:33.253981","updatedAt":"2026-05-09T03:48:33.253984"},{"id":"ae29802f-415","date":"2026-03-20","description":"Saira","amount":110000,"category":"Salud","createdAt":"2026-05-09T03:48:33.254104","updatedAt":"2026-05-09T03:48:33.254107"},{"id":"59b0087f-e52","date":"2026-04-01","description":"Iphone Clau 6/6","amount":166665,"category":"Otros","createdAt":"2026-05-09T03:48:33.327014","updatedAt":"2026-05-09T03:48:33.327019"},{"id":"62d9dcc2-cc3","date":"2026-04-01","description":"Martín 5/6","amount":10677,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.327129","updatedAt":"2026-05-09T03:48:33.327133"},{"id":"b23da2ed-562","date":"2026-04-01","description":"Martín 5/12","amount":547,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.327307","updatedAt":"2026-05-09T03:48:33.327313"},{"id":"f2f79d72-597","date":"2026-04-02","description":"Mercado Libre 18/01/26 4/12","amount":1584,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.327514","updatedAt":"2026-05-09T03:48:33.327519"},{"id":"a1d03fde-679","date":"2026-04-02","description":"Mercado Libre 18/01/26 4/6","amount":264,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.327655","updatedAt":"2026-05-09T03:48:33.327662"},{"id":"e5b738a3-0cf","date":"2026-04-02","description":"Closet Ikea 3/3","amount":256650,"category":"Hogar","createdAt":"2026-05-09T03:48:33.327780","updatedAt":"2026-05-09T03:48:33.327783"},{"id":"b51dda80-ef4","date":"2026-04-02","description":"Estantes metálicos 1/6","amount":44495,"category":"Hogar","createdAt":"2026-05-09T03:48:33.327882","updatedAt":"2026-05-09T03:48:33.327885"},{"id":"a7f938ff-ec9","date":"2026-04-02","description":"Easy","amount":25754,"category":"Hogar","createdAt":"2026-05-09T03:48:33.327985","updatedAt":"2026-05-09T03:48:33.327987"},{"id":"3c3c1a91-f9d","date":"2026-04-03","description":"Lavaseco","amount":25080,"category":"Hogar","createdAt":"2026-05-09T03:48:33.328085","updatedAt":"2026-05-09T03:48:33.328088"},{"id":"bdd78d26-ae6","date":"2026-04-03","description":"Cucharas","amount":2990,"category":"Hogar","createdAt":"2026-05-09T03:48:33.328182","updatedAt":"2026-05-09T03:48:33.328184"},{"id":"a99e0f6b-e65","date":"2026-04-03","description":"Cafe juntitos","amount":14190,"category":"Entretención","createdAt":"2026-05-09T03:48:33.328283","updatedAt":"2026-05-09T03:48:33.328286"},{"id":"789b433d-da3","date":"2026-04-03","description":"Frutos secos","amount":13043,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.328380","updatedAt":"2026-05-09T03:48:33.328422"},{"id":"a8021b9f-f01","date":"2026-04-03","description":"Soap","amount":7490,"category":"Transporte","createdAt":"2026-05-09T03:48:33.328622","updatedAt":"2026-05-09T03:48:33.328627"},{"id":"afbaa028-048","date":"2026-04-03","description":"Supermercado","amount":13296,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.328761","updatedAt":"2026-05-09T03:48:33.328764"},{"id":"28a32b9f-383","date":"2026-04-04","description":"Leche","amount":23208,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.328867","updatedAt":"2026-05-09T03:48:33.328870"},{"id":"ac67b260-167","date":"2026-04-04","description":"Movistar","amount":16990,"category":"Servicios","createdAt":"2026-05-09T03:48:33.329051","updatedAt":"2026-05-09T03:48:33.329053"},{"id":"444ab1e7-636","date":"2026-04-04","description":"Kine piso pelvico","amount":31057,"category":"Salud","createdAt":"2026-05-09T03:48:33.329159","updatedAt":"2026-05-09T03:48:33.329161"},{"id":"b3f49733-d47","date":"2026-04-04","description":"Estacionamiento","amount":800,"category":"Transporte","createdAt":"2026-05-09T03:48:33.329255","updatedAt":"2026-05-09T03:48:33.329258"},{"id":"4ba054fc-7cd","date":"2026-04-05","description":"Doctor Clau","amount":1831,"category":"Salud","createdAt":"2026-05-09T03:48:33.329459","updatedAt":"2026-05-09T03:48:33.329464"},{"id":"a375599b-a19","date":"2026-04-05","description":"Estacionamiento","amount":1600,"category":"Transporte","createdAt":"2026-05-09T03:48:33.329591","updatedAt":"2026-05-09T03:48:33.329594"},{"id":"c7db286e-89f","date":"2026-04-05","description":"Verduras","amount":3500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.329692","updatedAt":"2026-05-09T03:48:33.329695"},{"id":"4aa1292b-e39","date":"2026-04-05","description":"Estacionamiento","amount":1600,"category":"Transporte","createdAt":"2026-05-09T03:48:33.329798","updatedAt":"2026-05-09T03:48:33.329801"},{"id":"81d0618d-482","date":"2026-04-05","description":"Parque","amount":1000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.329902","updatedAt":"2026-05-09T03:48:33.329904"},{"id":"441c6132-c4b","date":"2026-04-05","description":"Coso del confort","amount":2110,"category":"Hogar","createdAt":"2026-05-09T03:48:33.330002","updatedAt":"2026-05-09T03:48:33.330005"},{"id":"a55bc468-773","date":"2026-04-06","description":"Doctor Martin","amount":8486,"category":"Salud","createdAt":"2026-05-09T03:48:33.330108","updatedAt":"2026-05-09T03:48:33.330111"},{"id":"60a022e9-78f","date":"2026-04-06","description":"Lider","amount":500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.330267","updatedAt":"2026-05-09T03:48:33.330271"},{"id":"19507feb-a2d","date":"2026-04-06","description":"Heladito Clau","amount":3706,"category":"Otros","createdAt":"2026-05-09T03:48:33.330418","updatedAt":"2026-05-09T03:48:33.330424"},{"id":"f604ca92-81a","date":"2026-04-06","description":"Leche","amount":21990,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.330553","updatedAt":"2026-05-09T03:48:33.330555"},{"id":"00dab9b2-dc4","date":"2026-04-06","description":"Papajohns","amount":13000,"category":"Comidas","createdAt":"2026-05-09T03:48:33.330661","updatedAt":"2026-05-09T03:48:33.330665"},{"id":"e4c394d6-6c1","date":"2026-04-07","description":"Estacionamiento","amount":400,"category":"Transporte","createdAt":"2026-05-09T03:48:33.330821","updatedAt":"2026-05-09T03:48:33.330824"},{"id":"1c6c0641-513","date":"2026-04-03","description":"Autopista costanera","amount":8366,"category":"Otros","createdAt":"2026-05-09T03:48:33.330944","updatedAt":"2026-05-09T03:48:33.330946"},{"id":"183140ce-182","date":"2026-04-03","description":"Aputopista Peajes","amount":6600,"category":"Otros","createdAt":"2026-05-09T03:48:33.331062","updatedAt":"2026-05-09T03:48:33.331065"},{"id":"61f6ad08-069","date":"2026-04-03","description":"Autopista Avo","amount":2196,"category":"Otros","createdAt":"2026-05-09T03:48:33.331171","updatedAt":"2026-05-09T03:48:33.331174"},{"id":"df238971-265","date":"2026-04-03","description":"Croissant","amount":16500,"category":"Entretención","createdAt":"2026-05-09T03:48:33.331272","updatedAt":"2026-05-09T03:48:33.331275"},{"id":"3d7570a8-486","date":"2026-04-03","description":"Leche","amount":21980,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.331368","updatedAt":"2026-05-09T03:48:33.331371"},{"id":"630ec560-197","date":"2026-04-03","description":"Luz Capitania","amount":33321,"category":"Otros","createdAt":"2026-05-09T03:48:33.331551","updatedAt":"2026-05-09T03:48:33.331555"},{"id":"0cd79699-25a","date":"2026-04-03","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.331665","updatedAt":"2026-05-09T03:48:33.331667"},{"id":"178c4166-27e","date":"2026-04-04","description":"Frisbee Meiggs Trini","amount":2500,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.331778","updatedAt":"2026-05-09T03:48:33.331781"},{"id":"f8df0df3-49c","date":"2026-04-04","description":"Helados","amount":9000,"category":"Entretención","createdAt":"2026-05-09T03:48:33.331882","updatedAt":"2026-05-09T03:48:33.331884"},{"id":"63ebf977-2fc","date":"2026-04-04","description":"Supermercado","amount":1500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.331981","updatedAt":"2026-05-09T03:48:33.331984"},{"id":"feed0aea-f3c","date":"2026-04-04","description":"Supermercado","amount":3500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.332078","updatedAt":"2026-05-09T03:48:33.332080"},{"id":"c5e7bbf5-bba","date":"2026-04-04","description":"Carne","amount":13773,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.332212","updatedAt":"2026-05-09T03:48:33.332215"},{"id":"6eb97e96-210","date":"2026-04-05","description":"Tina","amount":25000,"category":"Hogar","createdAt":"2026-05-09T03:48:33.332325","updatedAt":"2026-05-09T03:48:33.332328"},{"id":"34259c77-485","date":"2026-04-05","description":"Supermercado","amount":50380,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.332477","updatedAt":"2026-05-09T03:48:33.332481"},{"id":"9bb8b89c-662","date":"2026-04-06","description":"Kine piso pelvico","amount":31057,"category":"Salud","createdAt":"2026-05-09T03:48:33.332603","updatedAt":"2026-05-09T03:48:33.332606"},{"id":"dbd45057-c1a","date":"2026-04-06","description":"Autopista","amount":9699,"category":"Otros","createdAt":"2026-05-09T03:48:33.332777","updatedAt":"2026-05-09T03:48:33.332781"},{"id":"89101f7b-642","date":"2026-04-06","description":"Estacionamiento","amount":1200,"category":"Transporte","createdAt":"2026-05-09T03:48:33.332904","updatedAt":"2026-05-09T03:48:33.332907"},{"id":"a0ebe756-d14","date":"2026-04-06","description":"Mamaderas","amount":23840,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.333009","updatedAt":"2026-05-09T03:48:33.333011"},{"id":"ab2fd467-3ef","date":"2026-04-07","description":"Comida Lúa","amount":54750,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.333111","updatedAt":"2026-05-09T03:48:33.333114"},{"id":"f363015a-851","date":"2026-04-07","description":"Parque","amount":1000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.333213","updatedAt":"2026-05-09T03:48:33.333215"},{"id":"ae20be1f-16c","date":"2026-04-07","description":"Adobe Clau","amount":12138,"category":"Otros","createdAt":"2026-05-09T03:48:33.333319","updatedAt":"2026-05-09T03:48:33.333322"},{"id":"d573d50f-c09","date":"2026-04-07","description":"Supermercado","amount":16150,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.333476","updatedAt":"2026-05-09T03:48:33.333480"},{"id":"5e0a7244-9fe","date":"2026-04-07","description":"Bencina","amount":63834,"category":"Transporte","createdAt":"2026-05-09T03:48:33.333595","updatedAt":"2026-05-09T03:48:33.333598"},{"id":"a84663f3-1d3","date":"2026-04-08","description":"Autopista","amount":399,"category":"Otros","createdAt":"2026-05-09T03:48:33.333732","updatedAt":"2026-05-09T03:48:33.333735"},{"id":"51a26392-8f9","date":"2026-04-08","description":"Creni","amount":78000,"category":"Otros","createdAt":"2026-05-09T03:48:33.333849","updatedAt":"2026-05-09T03:48:33.333851"},{"id":"664a86e7-463","date":"2026-04-09","description":"Deporte Clau","amount":21600,"category":"Entretención","createdAt":"2026-05-09T03:48:33.333960","updatedAt":"2026-05-09T03:48:33.333963"},{"id":"37f14499-9bc","date":"2026-04-09","description":"Crema poto","amount":2640,"category":"Hogar","createdAt":"2026-05-09T03:48:33.334059","updatedAt":"2026-05-09T03:48:33.334062"},{"id":"47b68dbf-817","date":"2026-04-09","description":"Deuda internacional","amount":76655,"category":"Hogar","createdAt":"2026-05-09T03:48:33.334200","updatedAt":"2026-05-09T03:48:33.334203"},{"id":"3cf377dc-dc9","date":"2026-04-10","description":"Estadio español","amount":101500,"category":"Entretención","createdAt":"2026-05-09T03:48:33.334322","updatedAt":"2026-05-09T03:48:33.334324"},{"id":"d17a895b-5b5","date":"2026-04-12","description":"Supermercado","amount":63138,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.334562","updatedAt":"2026-05-09T03:48:33.334567"},{"id":"3491f044-6cc","date":"2026-04-14","description":"Feria","amount":4000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.334663","updatedAt":"2026-05-09T03:48:33.334665"},{"id":"5f83afd1-6e8","date":"2026-04-14","description":"Supermercado","amount":17580,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.334771","updatedAt":"2026-05-09T03:48:33.334774"},{"id":"5b908e23-160","date":"2026-04-14","description":"Supermercado","amount":35560,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.334885","updatedAt":"2026-05-09T03:48:33.334890"},{"id":"90600cb6-eb0","date":"2026-04-14","description":"Parque","amount":2000,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.335019","updatedAt":"2026-05-09T03:48:33.335022"},{"id":"95017075-8d9","date":"2026-04-14","description":"Feria","amount":8500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.335119","updatedAt":"2026-05-09T03:48:33.335122"},{"id":"71ac8feb-12f","date":"2026-04-14","description":"Leche","amount":41980,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.335214","updatedAt":"2026-05-09T03:48:33.335217"},{"id":"b0f8d41e-d24","date":"2026-04-15","description":"Clek silla","amount":94970,"category":"Hogar","createdAt":"2026-05-09T03:48:33.335310","updatedAt":"2026-05-09T03:48:33.335312"},{"id":"4cdf64fa-8e2","date":"2026-04-15","description":"Angelica","amount":70000,"category":"Salud","createdAt":"2026-05-09T03:48:33.335466","updatedAt":"2026-05-09T03:48:33.335470"},{"id":"de08738f-ebe","date":"2026-04-15","description":"Supermercado","amount":32240,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.335588","updatedAt":"2026-05-09T03:48:33.335590"},{"id":"7dc4869f-bf5","date":"2026-04-16","description":"Verduras","amount":7000,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.335685","updatedAt":"2026-05-09T03:48:33.335688"},{"id":"3193adfe-519","date":"2026-04-16","description":"Verduras","amount":14740,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.335792","updatedAt":"2026-05-09T03:48:33.335794"},{"id":"cd860efa-288","date":"2026-04-16","description":"Bencina","amount":30347,"category":"Transporte","createdAt":"2026-05-09T03:48:33.335886","updatedAt":"2026-05-09T03:48:33.335889"},{"id":"bdeb9399-c21","date":"2026-04-18","description":"Supermercado","amount":8910,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.336051","updatedAt":"2026-05-09T03:48:33.336054"},{"id":"334813a8-a4a","date":"2026-04-18","description":"Supermercado","amount":16240,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.336145","updatedAt":"2026-05-09T03:48:33.336147"},{"id":"ece3e5a2-61a","date":"2026-04-18","description":"Helados","amount":3780,"category":"Entretención","createdAt":"2026-05-09T03:48:33.336243","updatedAt":"2026-05-09T03:48:33.336246"},{"id":"fdfa42ce-822","date":"2026-04-18","description":"Supermercado","amount":3990,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.336345","updatedAt":"2026-05-09T03:48:33.336347"},{"id":"00fc94d3-6e0","date":"2026-04-19","description":"Supermercado","amount":57595,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.336506","updatedAt":"2026-05-09T03:48:33.336510"},{"id":"d2ff4430-e2b","date":"2026-04-19","description":"Estacionamiento","amount":1150,"category":"Transporte","createdAt":"2026-05-09T03:48:33.336615","updatedAt":"2026-05-09T03:48:33.336618"},{"id":"17da989c-0fe","date":"2026-04-19","description":"Lider","amount":30220,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.336716","updatedAt":"2026-05-09T03:48:33.336719"},{"id":"ebaedf5c-606","date":"2026-04-19","description":"Decathon","amount":62000,"category":"Hogar","createdAt":"2026-05-09T03:48:33.336814","updatedAt":"2026-05-09T03:48:33.336816"},{"id":"9c3163bc-65e","date":"2026-04-19","description":"Easy","amount":46910,"category":"Hogar","createdAt":"2026-05-09T03:48:33.337002","updatedAt":"2026-05-09T03:48:33.337005"},{"id":"256bcc16-0ce","date":"2026-04-20","description":"kine piso pelvico","amount":31057,"category":"Salud","createdAt":"2026-05-09T03:48:33.337117","updatedAt":"2026-05-09T03:48:33.337120"},{"id":"b5884dda-e8b","date":"2026-04-20","description":"Estacionamiento","amount":1200,"category":"Transporte","createdAt":"2026-05-09T03:48:33.337216","updatedAt":"2026-05-09T03:48:33.337219"},{"id":"d24ffa9d-4c9","date":"2026-04-21","description":"Verduras","amount":5460,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.337427","updatedAt":"2026-05-09T03:48:33.337432"},{"id":"fd4d4fe4-3fc","date":"2026-04-21","description":"Verduras","amount":14600,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.337562","updatedAt":"2026-05-09T03:48:33.337565"},{"id":"eecbb6db-0cf","date":"2026-04-21","description":"Parque","amount":1500,"category":"Mascotas","createdAt":"2026-05-09T03:48:33.337672","updatedAt":"2026-05-09T03:48:33.337674"},{"id":"03c07c2d-6b1","date":"2026-04-21","description":"Mochila regalo Juaco","amount":227900,"category":"Otros","createdAt":"2026-05-09T03:48:33.338003","updatedAt":"2026-05-09T03:48:33.338006"},{"id":"3688bb2d-bb3","date":"2026-04-21","description":"Verduras","amount":10900,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.338101","updatedAt":"2026-05-09T03:48:33.338103"},{"id":"f5a39211-d88","date":"2026-04-21","description":"Aguas","amount":4240,"category":"Entretención","createdAt":"2026-05-09T03:48:33.338257","updatedAt":"2026-05-09T03:48:33.338260"},{"id":"4a02ce3d-ddf","date":"2026-04-19","description":"Farmacia","amount":20885,"category":"Salud","createdAt":"2026-05-09T03:48:33.338373","updatedAt":"2026-05-09T03:48:33.338376"},{"id":"387d556d-e4b","date":"2026-04-23","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.338549","updatedAt":"2026-05-09T03:48:33.338553"},{"id":"696a7962-667","date":"2026-04-23","description":"Trini Poirot","amount":12000,"category":"Otros","createdAt":"2026-05-09T03:48:33.338664","updatedAt":"2026-05-09T03:48:33.338667"},{"id":"a0f44b1f-96a","date":"2026-04-23","description":"Pizza","amount":8400,"category":"Otros","createdAt":"2026-05-09T03:48:33.338780","updatedAt":"2026-05-09T03:48:33.338783"},{"id":"adf461a8-ce6","date":"2026-04-23","description":"Estacionamiento","amount":770,"category":"Transporte","createdAt":"2026-05-09T03:48:33.338960","updatedAt":"2026-05-09T03:48:33.338964"},{"id":"e19ef81c-b1c","date":"2026-04-24","description":"Leche","amount":104430,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.339066","updatedAt":"2026-05-09T03:48:33.339069"},{"id":"f0325c13-220","date":"2026-04-24","description":"Krea","amount":38262,"category":"Hogar","createdAt":"2026-05-09T03:48:33.339233","updatedAt":"2026-05-09T03:48:33.339235"},{"id":"ef570e28-e57","date":"2026-04-27","description":"Aguas Andinas","amount":17500,"category":"Servicios","createdAt":"2026-05-09T03:48:33.339338","updatedAt":"2026-05-09T03:48:33.339341"},{"id":"333b5f48-8e9","date":"2026-04-30","description":"Saira","amount":110000,"category":"Salud","createdAt":"2026-05-09T03:48:33.339509","updatedAt":"2026-05-09T03:48:33.339513"},{"id":"9775bb39-0f6","date":"2026-04-30","description":"Angélica","amount":35000,"category":"Salud","createdAt":"2026-05-09T03:48:33.339698","updatedAt":"2026-05-09T03:48:33.339701"},{"id":"7dd3337a-bcc","date":"2026-05-01","description":"Martín 6/6","amount":10677,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.378431","updatedAt":"2026-05-09T03:48:33.378437"},{"id":"dde7773f-16f","date":"2026-05-02","description":"Martín 6/6","amount":547,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.378570","updatedAt":"2026-05-09T03:48:33.378573"},{"id":"954bd2ac-713","date":"2026-05-02","description":"Mercado Libre 18/01/26 5/12","amount":1584,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.378683","updatedAt":"2026-05-09T03:48:33.378685"},{"id":"a13bcc99-ad4","date":"2026-05-02","description":"Mercado Libre 18/01/26 5/6","amount":264,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.378804","updatedAt":"2026-05-09T03:48:33.378806"},{"id":"bb639c43-281","date":"2026-05-02","description":"Estantes metálicos 2/6","amount":44495,"category":"Hogar","createdAt":"2026-05-09T03:48:33.378917","updatedAt":"2026-05-09T03:48:33.378919"},{"id":"fea7cabd-e76","date":"2026-05-03","description":"Permiso de circulación 1/3","amount":131221,"category":"Transporte","createdAt":"2026-05-09T03:48:33.379023","updatedAt":"2026-05-09T03:48:33.379026"},{"id":"099c024e-faf","date":"2026-05-03","description":"Frezer 1/3","amount":49997,"category":"Hogar","createdAt":"2026-05-09T03:48:33.379132","updatedAt":"2026-05-09T03:48:33.379135"},{"id":"aa688318-787","date":"2026-04-24","description":"Deporte Clau","amount":32000,"category":"Entretención","createdAt":"2026-05-09T03:48:33.379271","updatedAt":"2026-05-09T03:48:33.379274"},{"id":"64dcfc27-ba2","date":"2026-04-25","description":"Supermercado","amount":73046,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.379438","updatedAt":"2026-05-09T03:48:33.379442"},{"id":"a5a225b9-341","date":"2026-04-25","description":"Supermercado","amount":41032,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.379585","updatedAt":"2026-05-09T03:48:33.379587"},{"id":"7500d533-8cb","date":"2026-04-25","description":"Mercado Libre","amount":40290,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.379718","updatedAt":"2026-05-09T03:48:33.379721"},{"id":"9e8e36fa-51a","date":"2026-04-25","description":"Supermercado","amount":16380,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.379839","updatedAt":"2026-05-09T03:48:33.379842"},{"id":"910d0d8d-a1e","date":"2026-04-28","description":"Feria","amount":19400,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.379951","updatedAt":"2026-05-09T03:48:33.379954"},{"id":"8a186690-e34","date":"2026-04-28","description":"Feria","amount":8500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.380061","updatedAt":"2026-05-09T03:48:33.380064"},{"id":"ef0311c2-a2c","date":"2026-04-28","description":"Examen de sangre Balto","amount":49850,"category":"Otros","createdAt":"2026-05-09T03:48:33.380183","updatedAt":"2026-05-09T03:48:33.380186"},{"id":"96a7e55a-b58","date":"2026-04-28","description":"Veterinaria Balto","amount":257610,"category":"Otros","createdAt":"2026-05-09T03:48:33.380307","updatedAt":"2026-05-09T03:48:33.380310"},{"id":"dee3cc3e-a21","date":"2026-04-28","description":"Movistar","amount":16990,"category":"Servicios","createdAt":"2026-05-09T03:48:33.380470","updatedAt":"2026-05-09T03:48:33.380474"},{"id":"b178ed70-edc","date":"2026-04-29","description":"Supermercado","amount":59589,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.380683","updatedAt":"2026-05-09T03:48:33.380687"},{"id":"3ef18916-cd4","date":"2026-05-06","description":"Repisa bar","amount":32500,"category":"Hogar","createdAt":"2026-05-09T03:48:33.380808","updatedAt":"2026-05-09T03:48:33.380811"},{"id":"9dc16d3a-f4c","date":"2026-04-30","description":"Bencina","amount":26017,"category":"Transporte","createdAt":"2026-05-09T03:48:33.380999","updatedAt":"2026-05-09T03:48:33.381002"},{"id":"821e6828-dca","date":"2026-05-02","description":"Regalo Pipa","amount":22980,"category":"Entretención","createdAt":"2026-05-09T03:48:33.381112","updatedAt":"2026-05-09T03:48:33.381114"},{"id":"c3d54bc7-767","date":"2026-05-02","description":"Estacionamiento","amount":1250,"category":"Transporte","createdAt":"2026-05-09T03:48:33.381324","updatedAt":"2026-05-09T03:48:33.381328"},{"id":"48f74777-541","date":"2026-05-02","description":"Remedios Mpaz","amount":61538,"category":"Otros","createdAt":"2026-05-09T03:48:33.381508","updatedAt":"2026-05-09T03:48:33.381511"},{"id":"ece19676-57a","date":"2026-05-03","description":"Zapatillas Clau 0/3","amount":58980,"category":"Entretención","createdAt":"2026-05-09T03:48:33.381639","updatedAt":"2026-05-09T03:48:33.381642"},{"id":"049c9a66-b89","date":"2026-05-04","description":"Estadio español","amount":41100,"category":"Comidas","createdAt":"2026-05-09T03:48:33.381762","updatedAt":"2026-05-09T03:48:33.381765"},{"id":"d10ddc2b-b9c","date":"2026-05-04","description":"Pañales (Trini debe 20.466)","amount":60220,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.381877","updatedAt":"2026-05-09T03:48:33.381879"},{"id":"62fbbe8a-275","date":"2026-05-05","description":"Once Suizos","amount":21620,"category":"Entretención","createdAt":"2026-05-09T03:48:33.382199","updatedAt":"2026-05-09T03:48:33.382203"},{"id":"a34909b4-9f4","date":"2026-05-05","description":"Paltas","amount":7300,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.382335","updatedAt":"2026-05-09T03:48:33.382338"},{"id":"1bda0815-18a","date":"2026-05-06","description":"Adobe Clau","amount":12138,"category":"Otros","createdAt":"2026-05-09T03:48:33.382507","updatedAt":"2026-05-09T03:48:33.382511"},{"id":"50a1a115-1d5","date":"2026-05-06","description":"Estadio español","amount":101500,"category":"Entretención","createdAt":"2026-05-09T03:48:33.382658","updatedAt":"2026-05-09T03:48:33.382663"},{"id":"c8493341-3b4","date":"2026-05-07","description":"Paltas","amount":13500,"category":"Supermercado","createdAt":"2026-05-09T03:48:33.382821","updatedAt":"2026-05-09T03:48:33.382824"}];
 const EXCEL_INCOME   = [{"id":"0d7aa8b2-7e0","date":"2026-01-01","description":"Sueldo Juaco","amount":1300000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.136270","updatedAt":"2026-05-09T03:48:33.136284"},{"id":"6d19185e-a81","date":"2026-01-01","description":"Sueldo Clau","amount":912381,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.136345","updatedAt":"2026-05-09T03:48:33.136348"},{"id":"ad403775-c01","date":"2026-02-01","description":"Sueldo Juaco","amount":1300000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.189680","updatedAt":"2026-05-09T03:48:33.189691"},{"id":"33af15e5-b9b","date":"2026-02-01","description":"Sueldo Clau","amount":600000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.189743","updatedAt":"2026-05-09T03:48:33.189745"},{"id":"b28b74a6-72c","date":"2026-03-01","description":"Sueldo Juaco","amount":1300000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.238558","updatedAt":"2026-05-09T03:48:33.238569"},{"id":"48facedb-646","date":"2026-03-01","description":"Sueldo Clau","amount":600000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.238614","updatedAt":"2026-05-09T03:48:33.238617"},{"id":"15cfc1d0-61c","date":"2026-04-01","description":"Sueldo Juaco","amount":1300000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.326350","updatedAt":"2026-05-09T03:48:33.326361"},{"id":"f8ad8e98-dbd","date":"2026-04-01","description":"Sueldo Clau","amount":608254,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.326441","updatedAt":"2026-05-09T03:48:33.326444"},{"id":"d7db8734-9a1","date":"2026-05-01","description":"Sueldo Juaco","amount":1300000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.377698","updatedAt":"2026-05-09T03:48:33.377717"},{"id":"21afaea5-dce","date":"2026-05-01","description":"Sueldo Clau","amount":600000,"source":"Sueldo","createdAt":"2026-05-09T03:48:33.377761","updatedAt":"2026-05-09T03:48:33.377764"}];
@@ -497,955 +444,986 @@ const EXCEL_INCOME   = [{"id":"0d7aa8b2-7e0","date":"2026-01-01","description":"
 /* ================================================================
    CONSTANTES Y ESTADO
 ================================================================ */
-const DEFAULT_CATEGORIES = ['Supermercado','Comidas','Transporte','Servicios','Salud','Hogar','Entretención','Mascotas','Educación','Viajes','Otros'];
+
+/* ── CONSTANTS ── */
+const DEFAULT_CATEGORIES = ['Supermercado','Comidas','Transporte','Servicios','Salud','Casa','Entretención','Mascotas','Educación','Viajes','Pago TC','Otros'];
 const DEFAULT_SOURCES    = ['Sueldo','Transferencia','Ahorro','Otro'];
-const BASE_CATS          = [...DEFAULT_CATEGORIES];
-const BASE_SOURCES       = [...DEFAULT_SOURCES];
+const BASE_CATS   = [...DEFAULT_CATEGORIES];
+const BASE_SOURCES= [...DEFAULT_SOURCES];
+const DEFAULT_SETTINGS = { tcLimit: 3100000 };
 
-let state = {
-  expenses: [],
-  income:   [],
-  categories: [],
-  incomeSources: [],
-  budgets: {},
-};
-
+/* ── STATE ── */
+let state = { expenses:[], income:[], categories:[], incomeSources:[], budgets:{}, settings:{...DEFAULT_SETTINGS} };
 let editingExpenseId = null;
 let editingIncomeId  = null;
 let selectedMonth    = '';
-let charts = { pie: null, bar: null, line: null };
+let currentPayType   = 'TC'; // TC | DB
+let charts = { pie:null, bar:null, line:null };
 let saveTimer = null;
 let isInitialized = false;
 
-/* ================================================================
-   UTILIDADES
-================================================================ */
+/* ── UTILS ── */
 const fmt = n => new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
+const fmtNum = n => new Intl.NumberFormat('es-CL',{maximumFractionDigits:0}).format(n);
 
-function todayStr() {
-  const d = new Date();
+function todayStr(){
+  const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
-function currentMonthStr() {
-  const d = new Date();
+function currentMonthStr(){
+  const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
-
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+function addMonths(ym, n){
+  const [y,m]=ym.split('-').map(Number);
+  const d=new Date(y,m-1+n,1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
-
-function daysInMonth(ym) {
-  const [y,m] = ym.split('-').map(Number);
-  return new Date(y, m, 0).getDate();
-}
-
-function daysPassed(ym) {
-  const cur = currentMonthStr();
-  if (ym !== cur) return daysInMonth(ym);
-  return new Date().getDate();
-}
-
-function monthLabel(ym) {
-  const [y,m] = ym.split('-').map(Number);
-  return new Date(y, m-1, 1).toLocaleString('es-CL',{month:'long',year:'numeric'});
-}
-
-function escapeCsv(val) {
-  const s = String(val);
-  if (s.includes(';') || s.includes('"') || s.includes('\n')) return '"' + s.replace(/"/g,'""') + '"';
-  return s;
-}
-
-function downloadFile(content, filename, type) {
-  const blob = new Blob([content], {type});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function daysInMonth(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).getDate(); }
+function daysPassed(ym){ return ym!==currentMonthStr() ? daysInMonth(ym) : new Date().getDate(); }
+function monthLabel(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m-1,1).toLocaleString('es-CL',{month:'long',year:'numeric'}); }
+function escapeCsv(val){ const s=String(val); return (s.includes(';')||s.includes('"')||s.includes('\n')) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+function downloadFile(content,filename,type){ const b=new Blob([content],{type}),u=URL.createObjectURL(b),a=document.createElement('a'); a.href=u; a.download=filename; a.click(); URL.revokeObjectURL(u); }
 
 let toastTimer;
-function showToast(msg, color='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.borderColor = color || 'var(--border)';
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+function showToast(msg,color=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.borderColor=color||'var(--border)'; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3200);
 }
-
-function setStatus(online) {
-  const el = document.getElementById('syncStatus');
-  if (!el) return;
-  if (online) {
-    el.innerHTML = `<span style="color:var(--accent)">● Sincronizado</span>`;
-  } else {
-    el.innerHTML = `<span style="color:var(--warn)">● Sin conexión</span>`;
-  }
+function setStatus(online){
+  const el=document.getElementById('syncStatus');
+  if(el) el.innerHTML=online?'<span style="color:var(--accent)">● Sincronizado</span>':'<span style="color:var(--warn)">● Sin conexión</span>';
 }
+function showSyncSpinner(on){ const el=document.getElementById('syncSpinner'); if(el) el.style.opacity=on?'1':'0'; }
 
-/* ================================================================
-   FIREBASE — CARGA Y GUARDADO
-================================================================ */
-async function loadData() {
+/* ── FIREBASE LOAD/SAVE ── */
+async function loadData(){
   showSyncSpinner(true);
   try {
-    const [expSnap, incSnap, catSnap, srcSnap, budSnap] = await Promise.all([
-      getDoc(DOCS.expenses),
-      getDoc(DOCS.income),
-      getDoc(DOCS.categories),
-      getDoc(DOCS.incomeSources),
-      getDoc(DOCS.budgets),
+    const [eS,iS,cS,sS,bS,stS] = await Promise.all([
+      getDoc(DOCS.expenses), getDoc(DOCS.income), getDoc(DOCS.categories),
+      getDoc(DOCS.incomeSources), getDoc(DOCS.budgets), getDoc(DOCS.settings)
     ]);
-
-    // Seed from Excel on first load if Firestore is empty
-    if (!expSnap.exists()) {
-      state.expenses = [...EXCEL_EXPENSES];
-      await setDoc(DOCS.expenses, { data: state.expenses });
-    } else {
-      state.expenses = expSnap.data().data || [];
-    }
-
-    if (!incSnap.exists()) {
-      state.income = [...EXCEL_INCOME];
-      await setDoc(DOCS.income, { data: state.income });
-    } else {
-      state.income = incSnap.data().data || [];
-    }
-
-    if (!catSnap.exists()) {
-      state.categories = [...DEFAULT_CATEGORIES];
-      await setDoc(DOCS.categories, { data: state.categories });
-    } else {
-      state.categories = catSnap.data().data || [...DEFAULT_CATEGORIES];
-    }
-
-    if (!srcSnap.exists()) {
-      state.incomeSources = [...DEFAULT_SOURCES];
-      await setDoc(DOCS.incomeSources, { data: state.incomeSources });
-    } else {
-      state.incomeSources = srcSnap.data().data || [...DEFAULT_SOURCES];
-    }
-
-    if (!state.categories.includes('Otros')) state.categories.push('Otros');
-
-    // Budgets
-    if (!budSnap.exists()) {
-      const defaultBudgets = {'2026-01':2212381,'2026-02':1900000,'2026-03':1900000,'2026-04':1908254,'2026-05':1900000};
-      state.budgets = defaultBudgets;
-      await setDoc(DOCS.budgets, defaultBudgets);
-    } else {
-      state.budgets = budSnap.data() || {};
-    }
-
+    state.expenses      = eS.exists()  ? eS.data().data||[]  : [...EXCEL_EXPENSES];
+    state.income        = iS.exists()  ? iS.data().data||[]  : [...EXCEL_INCOME];
+    state.categories    = cS.exists()  ? cS.data().data||[]  : [...DEFAULT_CATEGORIES];
+    state.incomeSources = sS.exists()  ? sS.data().data||[]  : [...DEFAULT_SOURCES];
+    state.budgets       = bS.exists()  ? bS.data()||{}       : {'2026-01':2212381,'2026-02':1900000,'2026-03':1900000,'2026-04':1908254,'2026-05':1900000};
+    state.settings      = stS.exists() ? stS.data()||{...DEFAULT_SETTINGS} : {...DEFAULT_SETTINGS};
+    if(!state.categories.includes('Otros')) state.categories.push('Otros');
+    // Seed if first load
+    if(!eS.exists()) await setDoc(DOCS.expenses,{data:state.expenses});
+    if(!iS.exists()) await setDoc(DOCS.income,{data:state.income});
+    if(!cS.exists()) await setDoc(DOCS.categories,{data:state.categories});
+    if(!sS.exists()) await setDoc(DOCS.incomeSources,{data:state.incomeSources});
+    if(!bS.exists()) await setDoc(DOCS.budgets,state.budgets);
+    if(!stS.exists()) await setDoc(DOCS.settings,state.settings);
     setStatus(true);
   } catch(e) {
-    console.error('Error cargando datos:', e);
-    showToast('Error de conexión. Usando datos locales.', 'var(--warn)');
+    console.error(e);
+    showToast('Sin conexión. Usando datos de ejemplo.','var(--warn)');
     setStatus(false);
-    // Fallback: use Excel data
-    state.expenses      = [...EXCEL_EXPENSES];
-    state.income        = [...EXCEL_INCOME];
-    state.categories    = [...DEFAULT_CATEGORIES];
-    state.incomeSources = [...DEFAULT_SOURCES];
-    state.budgets       = {'2026-01':2212381,'2026-02':1900000,'2026-03':1900000,'2026-04':1908254,'2026-05':1900000};
+    state.expenses=[...EXCEL_EXPENSES]; state.income=[...EXCEL_INCOME];
+    state.categories=[...DEFAULT_CATEGORIES]; state.incomeSources=[...DEFAULT_SOURCES];
+    state.budgets={'2026-01':2212381,'2026-02':1900000,'2026-03':1900000,'2026-04':1908254,'2026-05':1900000};
+    state.settings={...DEFAULT_SETTINGS};
   }
   showSyncSpinner(false);
 }
 
-// Debounced save — avoids hammering Firestore on rapid changes
-function saveAll() {
+function saveAll(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
+  saveTimer=setTimeout(async()=>{
     showSyncSpinner(true);
     try {
       await Promise.all([
-        setDoc(DOCS.expenses,      { data: state.expenses }),
-        setDoc(DOCS.income,        { data: state.income }),
-        setDoc(DOCS.categories,    { data: state.categories }),
-        setDoc(DOCS.incomeSources, { data: state.incomeSources }),
+        setDoc(DOCS.expenses,{data:state.expenses}),
+        setDoc(DOCS.income,{data:state.income}),
+        setDoc(DOCS.categories,{data:state.categories}),
+        setDoc(DOCS.incomeSources,{data:state.incomeSources}),
       ]);
       setStatus(true);
-    } catch(e) {
-      console.error('Error guardando:', e);
-      showToast('Error al sincronizar', 'var(--danger)');
-      setStatus(false);
-    }
+    } catch(e){ console.error(e); showToast('Error al sincronizar','var(--danger)'); setStatus(false); }
     showSyncSpinner(false);
-  }, 600);
+  },700);
 }
 
-// Real-time listener — updates UI when another device makes changes
-function startRealtimeSync() {
-  // Listen on expenses (main collection — drives dashboard)
-  onSnapshot(DOCS.expenses, snap => {
-    if (!snap.exists() || !isInitialized) return;
-    const newData = snap.data().data || [];
-    // Only update if data actually changed (avoid loop with own saves)
-    if (JSON.stringify(newData) !== JSON.stringify(state.expenses)) {
-      state.expenses = newData;
-      renderAll();
-      showToast('↻ Datos actualizados desde otro dispositivo', 'var(--accent2)');
+async function saveSettings(){
+  try { await setDoc(DOCS.settings,state.settings); setStatus(true); } catch(e){ console.error(e); }
+}
+async function saveBudgetDoc(){
+  try { await setDoc(DOCS.budgets,state.budgets); setStatus(true); } catch(e){ console.error(e); }
+}
+
+function startRealtimeSync(){
+  onSnapshot(DOCS.expenses,snap=>{
+    if(!snap.exists()||!isInitialized) return;
+    const d=snap.data().data||[];
+    if(JSON.stringify(d)!==JSON.stringify(state.expenses)){
+      state.expenses=d; renderAll();
+      showToast('↻ Gastos actualizados','var(--accent2)');
     }
   });
-  onSnapshot(DOCS.income, snap => {
-    if (!snap.exists() || !isInitialized) return;
-    const newData = snap.data().data || [];
-    if (JSON.stringify(newData) !== JSON.stringify(state.income)) {
-      state.income = newData;
-      renderAll();
-    }
+  onSnapshot(DOCS.income,snap=>{
+    if(!snap.exists()||!isInitialized) return;
+    const d=snap.data().data||[];
+    if(JSON.stringify(d)!==JSON.stringify(state.income)){ state.income=d; renderAll(); }
   });
-  onSnapshot(DOCS.budgets, snap => {
-    if (!snap.exists() || !isInitialized) return;
-    state.budgets = snap.data() || {};
-    renderBudget();
+  onSnapshot(DOCS.budgets,snap=>{
+    if(!snap.exists()||!isInitialized) return;
+    state.budgets=snap.data()||{}; renderBudget();
+  });
+  onSnapshot(DOCS.settings,snap=>{
+    if(!snap.exists()||!isInitialized) return;
+    state.settings=snap.data()||{...DEFAULT_SETTINGS}; renderTCBanner();
   });
 }
 
-function showSyncSpinner(on) {
-  const el = document.getElementById('syncSpinner');
-  if (el) el.style.opacity = on ? '1' : '0';
+function getBudget(ym){ return state.budgets[ym]?Number(state.budgets[ym]):null; }
+async function setBudget(ym,val){ state.budgets[ym]=val; await saveBudgetDoc(); }
+
+/* ── TC LIMIT ── */
+async function saveTCLimit(){
+  const val=Number(document.getElementById('tcLimitInput').value);
+  if(!val||val<=0){showToast('Ingresa un valor válido','var(--danger)');return;}
+  state.settings.tcLimit=val;
+  await saveSettings();
+  document.getElementById('tcModal').classList.remove('open');
+  showToast('Cupo de TC actualizado ✓','var(--accent)');
+  renderTCBanner();
+}
+window.saveTCLimit=saveTCLimit;
+
+function getTCUsed(){
+  // TC used = expenses with payType TC not yet paid to TC
+  return state.expenses
+    .filter(e=>e.payType==='TC'&&!e.tcPaid)
+    .reduce((s,e)=>s+e.amount,0);
 }
 
-function getBudget(ym) {
-  return state.budgets[ym] ? Number(state.budgets[ym]) : null;
+function renderTCBanner(){
+  const limit=state.settings.tcLimit||3100000;
+  const used=getTCUsed();
+  const avail=limit-used;
+  const pct=Math.min(used/limit*100,100);
+  const color=pct<70?'var(--accent)':pct<90?'var(--warn)':'var(--danger)';
+  document.getElementById('tcBannerContent').innerHTML=`
+    <div class="flex gap-3 flex-wrap mt-1">
+      <span style="font-size:13px">Usado: <strong class="mono" style="color:var(--danger)">${fmt(used)}</strong></span>
+      <span style="font-size:13px">Disponible: <strong class="mono" style="color:${avail>=0?'var(--accent)':'var(--danger)'}">${fmt(Math.abs(avail))}</strong></span>
+      <span style="font-size:13px">Cupo: <strong class="mono" style="color:var(--muted)">${fmt(limit)}</strong></span>
+    </div>`;
+  document.getElementById('tcProgTrack').innerHTML=`<div class="prog-fill" style="width:${pct}%;background:${color}"></div>`;
 }
 
-async function setBudget(ym, val) {
-  state.budgets[ym] = val;
-  try {
-    await setDoc(DOCS.budgets, state.budgets);
-    setStatus(true);
-  } catch(e) {
-    showToast('Error al guardar presupuesto', 'var(--danger)');
-  }
+/* ── CLAU BALANCE ── */
+function getClauBalance(){
+  // Clau pays things with her own money → then she ingresses to the fund
+  // "gastos Clau" = expenses tagged isClau (she paid, fund owes her)
+  // "ingresos Clau" = income tagged isClauReturn (she's paying into fund)
+  // pending = how much she still needs to ingress to the fund
+  const gastos  = state.expenses.filter(e=>e.isClau).reduce((s,e)=>s+e.amount,0);
+  const ingresos= state.income.filter(i=>i.isClauReturn).reduce((s,i)=>s+i.amount,0);
+  const pending = gastos - ingresos; // positive = she still owes ingressing
+  return { gastos, ingresos, pending };
 }
 
-/* ================================================================
-   TABS
-================================================================ */
-function switchTab(tab) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+function renderClauBanner(){
+  const {gastos,ingresos,pending}=getClauBalance();
+  const el=document.getElementById('clauBanner');
+  if(gastos===0&&ingresos===0){ el.style.display='none'; return; }
+  el.style.display='flex';
+  const color=pending>0?'var(--warn)':'var(--accent)';
+  el.innerHTML=`
+    <div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--purple);font-weight:700">Clau — Pagos pendientes de ingresar al fondo</div>
+      <div style="font-size:13px;margin-top:3px">
+        Pagó: <strong class="mono">${fmt(gastos)}</strong> · 
+        Ha ingresado: <strong class="mono">${fmt(ingresos)}</strong> · 
+        <span style="color:${color}">
+          ${pending>0?'Falta ingresar':'Al día'}: <strong class="mono">${fmt(Math.abs(pending))}</strong>
+        </span>
+      </div>
+    </div>`;
+}
+
+/* ── TABS ── */
+function switchTab(tab){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-  if (tab === 'charts') renderCharts();
+  if(tab==='charts') renderCharts();
+  if(tab==='expenses') updateClauIncomeSelect();
+  if(tab==='income') updateClauExpenseSelect();
+}
+window.switchTab=switchTab;
+
+/* ── MONTH ── */
+function initMonth(){
+  const sel=document.getElementById('monthSelector');
+  sel.value=currentMonthStr(); selectedMonth=sel.value;
+  sel.addEventListener('change',()=>{ selectedMonth=sel.value; renderAll(); });
 }
 
-/* ================================================================
-   MONTH SELECTOR
-================================================================ */
-function initMonth() {
-  const sel = document.getElementById('monthSelector');
-  sel.value = currentMonthStr();
-  selectedMonth = sel.value;
-  sel.addEventListener('change', () => {
-    selectedMonth = sel.value;
-    renderAll();
-  });
+/* ── METRICS ── */
+function getMonthExpenses(ym){ return state.expenses.filter(e=>e.date.startsWith(ym)); }
+function getMonthIncome(ym)  { return state.income.filter(i=>i.date.startsWith(ym)); }
+
+function calcMetrics(ym){
+  const exps=getMonthExpenses(ym), incs=getMonthIncome(ym);
+  const totalExp=exps.reduce((s,e)=>s+e.amount,0);
+  const totalInc=incs.reduce((s,i)=>s+i.amount,0);
+  const saldo=totalInc-totalExp;
+  const pct=totalInc>0?(totalExp/totalInc*100):null;
+  const byCat={};
+  exps.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+e.amount);
+  let topCat=null,topAmt=0;
+  Object.entries(byCat).forEach(([c,a])=>{if(a>topAmt){topCat=c;topAmt=a;}});
+  const days=daysPassed(ym), totalDays=daysInMonth(ym);
+  const dailyAvg=days>0?totalExp/days:0;
+  const projection=ym===currentMonthStr()?dailyAvg*totalDays:totalExp;
+  const byType={ TC:0, DB:0 };
+  exps.forEach(e=>byType[e.payType||'TC']=(byType[e.payType||'TC']||0)+e.amount);
+  return {totalExp,totalInc,saldo,pct,topCat,topAmt,dailyAvg,projection,byCat,byType};
 }
 
-/* ================================================================
-   MÉTRICAS
-================================================================ */
-function getMonthExpenses(ym) { return state.expenses.filter(e => e.date.startsWith(ym)); }
-function getMonthIncome(ym)   { return state.income.filter(i => i.date.startsWith(ym)); }
-
-function calcMetrics(ym) {
-  const exps  = getMonthExpenses(ym);
-  const incs  = getMonthIncome(ym);
-  const totalExp = exps.reduce((s,e)=>s+e.amount,0);
-  const totalInc = incs.reduce((s,i)=>s+i.amount,0);
-  const saldo    = totalInc - totalExp;
-  const pct      = totalInc > 0 ? (totalExp / totalInc * 100) : null;
-  const byCat = {};
-  exps.forEach(e => byCat[e.category] = (byCat[e.category]||0) + e.amount);
-  let topCat = null, topAmt = 0;
-  Object.entries(byCat).forEach(([c,a])=>{ if(a>topAmt){topCat=c;topAmt=a;} });
-  const days    = daysPassed(ym);
-  const dailyAvg = days > 0 ? totalExp / days : 0;
-  const totalDays = daysInMonth(ym);
-  const projection = ym === currentMonthStr() ? dailyAvg * totalDays : totalExp;
-  return { totalExp, totalInc, saldo, pct, topCat, topAmt, dailyAvg, projection, byCat };
-}
-
-function renderMetrics() {
-  const m   = selectedMonth;
-  const met = calcMetrics(m);
-  const lbl = monthLabel(m);
-  const isSurplus = met.saldo >= 0;
-  document.getElementById('metSaldo').innerHTML = `
-    <div class="metric-label">${isSurplus ? 'Saldo disponible' : 'Mes excedido en'}</div>
-    <div class="metric-value mono" style="color:${isSurplus ? 'var(--accent)' : 'var(--danger)'}">${fmt(Math.abs(met.saldo))}</div>
+function renderMetrics(){
+  const m=selectedMonth, met=calcMetrics(m), lbl=monthLabel(m);
+  const isSurplus=met.saldo>=0;
+  document.getElementById('metSaldo').innerHTML=`
+    <div class="metric-label">${isSurplus?'Saldo disponible':'Mes excedido en'}</div>
+    <div class="metric-value mono" style="color:${isSurplus?'var(--accent)':'var(--danger)'}">${fmt(Math.abs(met.saldo))}</div>
     <div style="font-size:11px;color:var(--muted);margin-top:2px">${lbl}</div>`;
-  document.getElementById('metIngresos').innerHTML = `
+  document.getElementById('metIngresos').innerHTML=`
     <div class="metric-label">Ingresos del mes</div>
     <div class="metric-value mono" style="color:var(--accent2)">${fmt(met.totalInc)}</div>`;
-  document.getElementById('metGastos').innerHTML = `
+  document.getElementById('metGastos').innerHTML=`
     <div class="metric-label">Total gastado</div>
-    <div class="metric-value mono" style="color:var(--danger)">${fmt(met.totalExp)}</div>`;
-  const pctEl = document.getElementById('metPct');
-  if (met.pct === null) {
-    pctEl.innerHTML = `<div class="metric-label">% del ingreso gastado</div><div style="font-size:12px;color:var(--muted);margin-top:4px">No hay ingresos registrados para este mes</div>`;
-  } else {
-    pctEl.innerHTML = `<div class="metric-label">% del ingreso gastado</div><div class="metric-value mono">${met.pct.toFixed(1)}%</div>`;
-  }
-  document.getElementById('metTopCat').innerHTML = `
+    <div class="metric-value mono" style="color:var(--danger)">${fmt(met.totalExp)}</div>
+    <div style="font-size:11px;color:var(--muted);margin-top:2px">
+      TC: ${fmt(met.byType.TC||0)} · Débito: ${fmt(met.byType.DB||0)}
+    </div>`;
+  document.getElementById('metPct').innerHTML=met.pct===null
+    ?`<div class="metric-label">% del ingreso gastado</div><div style="font-size:12px;color:var(--muted);margin-top:4px">Sin ingresos registrados</div>`
+    :`<div class="metric-label">% del ingreso gastado</div><div class="metric-value mono">${met.pct.toFixed(1)}%</div>`;
+  document.getElementById('metTopCat').innerHTML=`
     <div class="metric-label">Mayor categoría</div>
-    <div class="metric-value" style="font-size:15px">${met.topCat || '—'}</div>
-    ${met.topAmt ? `<div style="font-size:12px;color:var(--muted)">${fmt(met.topAmt)}</div>` : ''}`;
-  document.getElementById('metDailyAvg').innerHTML = `
+    <div class="metric-value" style="font-size:15px">${met.topCat||'—'}</div>
+    ${met.topAmt?`<div style="font-size:12px;color:var(--muted)">${fmt(met.topAmt)}</div>`:''}`;
+  document.getElementById('metDailyAvg').innerHTML=`
     <div class="metric-label">Gasto diario promedio</div>
     <div class="metric-value mono" style="font-size:18px">${fmt(Math.round(met.dailyAvg))}</div>`;
-  const projLabel = m === currentMonthStr() ? 'Proyección mensual' : 'Gasto real del mes';
-  document.getElementById('metProjection').innerHTML = `
+  const projLabel=m===currentMonthStr()?'Proyección mensual':'Gasto real del mes';
+  document.getElementById('metProjection').innerHTML=`
     <div class="metric-label">${projLabel}</div>
     <div class="metric-value mono" style="font-size:18px">${fmt(Math.round(met.projection))}</div>`;
 }
 
-/* ================================================================
-   PRESUPUESTO
-================================================================ */
-async function saveBudget() {
-  const val = Number(document.getElementById('budgetInput').value);
-  if (!val || val <= 0) { showToast('Ingresa un monto válido', 'var(--danger)'); return; }
-  await setBudget(selectedMonth, val);
-  showToast('Presupuesto guardado ✓', 'var(--accent)');
+/* ── BUDGET ── */
+async function saveBudget(){
+  const val=Number(document.getElementById('budgetInput').value);
+  if(!val||val<=0){showToast('Ingresa un monto válido','var(--danger)');return;}
+  await setBudget(selectedMonth,val);
+  showToast('Presupuesto guardado ✓','var(--accent)');
   renderBudget();
 }
+window.saveBudget=saveBudget;
 
-function renderBudget() {
-  const budget = getBudget(selectedMonth);
-  const disp   = document.getElementById('budgetDisplay');
-  document.getElementById('budgetInput').value = budget || '';
-  if (!budget) {
-    disp.innerHTML = `<p style="color:var(--muted);font-size:13px">No hay presupuesto definido para este mes.</p>`;
-    return;
-  }
-  const met  = calcMetrics(selectedMonth);
-  const pct  = Math.min((met.totalExp / budget) * 100, 200);
-  const rem  = budget - met.totalExp;
-  const color = pct < 70 ? 'var(--accent)' : pct < 100 ? 'var(--warn)' : 'var(--danger)';
-  disp.innerHTML = `
+function renderBudget(){
+  const budget=getBudget(selectedMonth);
+  const disp=document.getElementById('budgetDisplay');
+  document.getElementById('budgetInput').value=budget||'';
+  if(!budget){disp.innerHTML=`<p style="color:var(--muted);font-size:13px">No hay presupuesto definido para este mes.</p>`;return;}
+  const met=calcMetrics(selectedMonth);
+  const pct=Math.min(met.totalExp/budget*100,200);
+  const rem=budget-met.totalExp;
+  const color=pct<70?'var(--accent)':pct<100?'var(--warn)':'var(--danger)';
+  disp.innerHTML=`
     <div class="flex justify-between text-sm mb-1">
       <span style="color:var(--muted)">Presupuesto: <span class="mono font-semibold" style="color:var(--text)">${fmt(budget)}</span></span>
       <span style="color:${color}" class="font-semibold">${pct.toFixed(0)}%</span>
     </div>
-    <div class="prog-track">
-      <div class="prog-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div>
-    </div>
+    <div class="prog-track"><div class="prog-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div></div>
     <div class="flex justify-between text-xs mt-2" style="color:var(--muted)">
       <span>Gastado: <span class="mono" style="color:var(--text)">${fmt(met.totalExp)}</span></span>
       <span>${rem>=0?'Restante':'Excedido'}: <span class="mono" style="color:${rem>=0?'var(--accent)':'var(--danger)'}">${fmt(Math.abs(rem))}</span></span>
     </div>`;
 }
 
-/* ================================================================
-   HISTORIAL
-================================================================ */
-function sortRecords(arr) {
-  return [...arr].sort((a,b) => {
-    if (b.date !== a.date) return b.date.localeCompare(a.date);
-    return new Date(b.createdAt) - new Date(a.createdAt);
+/* ── HISTORY ── */
+function sortRecords(arr){
+  return [...arr].sort((a,b)=>{
+    if(b.date!==a.date) return b.date.localeCompare(a.date);
+    return new Date(b.createdAt)-new Date(a.createdAt);
   });
 }
 
-function renderExpenseHistory(containerId) {
-  const exps = sortRecords(getMonthExpenses(selectedMonth));
-  const el   = document.getElementById(containerId);
-  if (!exps.length) {
-    el.innerHTML = `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay gastos registrados para este mes.</div>`;
+function payTypeBadge(e){
+  if(e.payType==='DB') return `<span class="badge badge-green">Débito</span>`;
+  const q=e.installments||1;
+  const qLabel=q>1?` ${e.installmentNum||1}/${q}`:'';
+  if(e.tcPaid) return `<span class="badge badge-gray">TC pagada${qLabel}</span>`;
+  return `<span class="badge badge-purple">TC${qLabel}</span>`;
+}
+
+function renderExpenseHistory(containerId){
+  const exps=sortRecords(getMonthExpenses(selectedMonth));
+  const el=document.getElementById(containerId);
+  if(!exps.length){
+    el.innerHTML=`<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay gastos registrados para este mes.</div>`;
     return;
   }
-  el.innerHTML = `<table>
-    <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Categoría</th><th>Acciones</th></tr></thead>
-    <tbody>
-    ${exps.map(e=>`<tr>
-      <td>${e.date}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${e.description}</td>
-      <td class="mono">${fmt(e.amount)}</td>
-      <td><span class="badge">${e.category}</span></td>
-      <td><div class="flex gap-1">
-        <button class="btn btn-ghost btn-sm" onclick="editExpense('${e.id}')" title="Editar">✏️</button>
-        <button class="btn btn-ghost btn-sm" onclick="deleteExpense('${e.id}')" title="Eliminar">🗑️</button>
-      </div></td>
-    </tr>`).join('')}
-    </tbody></table>`;
+  el.innerHTML=`<table><thead><tr>
+    <th>Fecha</th><th>Descripción</th><th>Monto</th><th>Categoría</th><th>Pago</th><th>Acciones</th>
+  </tr></thead><tbody>
+  ${exps.map(e=>`<tr>
+    <td>${e.date}</td>
+    <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">
+      ${e.isClau?'<span style="color:var(--purple);font-size:11px;font-weight:700">CLAU </span>':''}${e.description}
+    </td>
+    <td class="mono">${fmt(e.amount)}</td>
+    <td><span class="badge">${e.category}</span></td>
+    <td>${payTypeBadge(e)}</td>
+    <td><div class="flex gap-1">
+      ${e.payType!=='DB'&&!e.tcPaid?`<button class="btn btn-ghost btn-sm" onclick="markTCPaid('${e.id}')" title="Marcar TC pagada" style="color:var(--accent)">✓TC</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="editExpense('${e.id}')" title="Editar">✏️</button>
+      <button class="btn btn-ghost btn-sm" onclick="deleteExpense('${e.id}')" title="Eliminar">🗑️</button>
+    </div></td>
+  </tr>`).join('')}
+  </tbody></table>`;
 }
 
-function renderIncomeHistory(containerId) {
-  const incs = sortRecords(getMonthIncome(selectedMonth));
-  const el   = document.getElementById(containerId);
-  if (!incs.length) {
-    el.innerHTML = `<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay ingresos registrados para este mes.</div>`;
+function renderIncomeHistory(containerId){
+  const incs=sortRecords(getMonthIncome(selectedMonth));
+  const el=document.getElementById(containerId);
+  if(!incs.length){
+    el.innerHTML=`<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay ingresos registrados para este mes.</div>`;
     return;
   }
-  el.innerHTML = `<table>
-    <thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Fuente</th><th>Acciones</th></tr></thead>
-    <tbody>
-    ${incs.map(i=>`<tr>
-      <td>${i.date}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">${i.description}</td>
-      <td class="mono">${fmt(i.amount)}</td>
-      <td><span class="badge badge-green">${i.source}</span></td>
-      <td><div class="flex gap-1">
-        <button class="btn btn-ghost btn-sm" onclick="editIncome('${i.id}')" title="Editar">✏️</button>
-        <button class="btn btn-ghost btn-sm" onclick="deleteIncome('${i.id}')" title="Eliminar">🗑️</button>
-      </div></td>
-    </tr>`).join('')}
-    </tbody></table>`;
+  el.innerHTML=`<table><thead><tr>
+    <th>Fecha</th><th>Descripción</th><th>Monto</th><th>Fuente</th><th>Acciones</th>
+  </tr></thead><tbody>
+  ${incs.map(i=>`<tr>
+    <td>${i.date}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis">
+      ${i.isClauReturn?'<span style="color:var(--purple);font-size:11px;font-weight:700">CLAU </span>':''}${i.description}
+    </td>
+    <td class="mono">${fmt(i.amount)}</td>
+    <td><span class="badge badge-green">${i.source}</span></td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm" onclick="editIncome('${i.id}')" title="Editar">✏️</button>
+      <button class="btn btn-ghost btn-sm" onclick="deleteIncome('${i.id}')" title="Eliminar">🗑️</button>
+    </div></td>
+  </tr>`).join('')}
+  </tbody></table>`;
 }
 
-/* ================================================================
-   FORMULARIO GASTOS
-================================================================ */
-function renderCatSelect() {
-  const sel = document.getElementById('expCat');
-  const cur = sel.value || state.categories[0] || '';
-  sel.innerHTML = state.categories.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('')
-    + `<option value="__new__">+ Nueva categoría</option>`;
+/* ── MARK TC PAID ── */
+function markTCPaid(id){
+  const e=state.expenses.find(x=>x.id===id);
+  if(!e) return;
+  if(!confirm(`¿Marcar "${e.description}" (${fmt(e.amount)}) como abonado a la TC?`)) return;
+  e.tcPaid=true; e.updatedAt=new Date().toISOString();
+  saveAll(); renderAll();
+  showToast('Marcado como abonado a TC ✓','var(--accent)');
+}
+window.markTCPaid=markTCPaid;
+
+/* ── PAYMENT TYPE TOGGLE ── */
+function setPaymentType(type){
+  currentPayType=type;
+  document.getElementById('toggleTC').classList.toggle('active',type==='TC');
+  document.getElementById('toggleDB').classList.toggle('active',type==='DB');
+  document.getElementById('installmentsWrap').style.display=type==='TC'?'':'none';
+  document.getElementById('tcOptions').style.display=type==='TC'?'':'none';
+  document.getElementById('installmentPreview').classList.add('hidden');
+  updateInstallmentPreview();
+}
+window.setPaymentType=setPaymentType;
+
+function updateInstallmentPreview(){
+  const amount=Number(document.getElementById('expAmount').value);
+  const installments=Number(document.getElementById('expInstallments').value)||1;
+  const preview=document.getElementById('installmentPreview');
+  if(currentPayType!=='TC'||installments<=1||!amount){ preview.classList.add('hidden'); return; }
+  const cuota=Math.round(amount/installments);
+  const month=document.getElementById('expDate').value?.slice(0,7)||selectedMonth;
+  let html=`<strong>Compra en ${installments} cuotas sin interés de ${fmt(cuota)}:</strong><br>`;
+  for(let i=0;i<installments;i++){
+    html+=`${addMonths(month,i)}: ${fmt(cuota)}`+(i<installments-1?' · ':'');
+  }
+  preview.innerHTML=html; preview.classList.remove('hidden');
+}
+window.updateInstallmentPreview=updateInstallmentPreview;
+
+/* ── CLAU SELECTS ── */
+function updateClauIncomeSelect(){
+  // For expense form: unlinked clau incomes in selected month
+  const sel=document.getElementById('clauLinkSelect');
+  const unlinked=state.income.filter(i=>i.isClauReturn&&!i.clauLinkedExpense&&i.date.startsWith(selectedMonth));
+  sel.innerHTML=`<option value="">— Sin vincular —</option>`+
+    unlinked.map(i=>`<option value="${i.id}">${i.date} · ${i.description} · ${fmt(i.amount)}</option>`).join('');
 }
 
-function handleExpCatChange() {
-  const v = document.getElementById('expCat').value;
-  document.getElementById('newCatWrap').classList.toggle('hidden', v !== '__new__');
+function updateClauExpenseSelect(){
+  const sel=document.getElementById('clauIncLinkSelect');
+  const unlinked=state.expenses.filter(e=>e.isClau&&!e.clauLinkedIncome&&e.date.startsWith(selectedMonth));
+  sel.innerHTML=`<option value="">— Sin vincular —</option>`+
+    unlinked.map(e=>`<option value="${e.id}">${e.date} · ${e.description} · ${fmt(e.amount)}</option>`).join('');
+  const wrap=document.getElementById('clauIncLinkWrap');
+  // Show if source contains "Clau" or toggle when source changes
+  wrap.classList.toggle('hidden', !document.getElementById('incSource').value.toLowerCase().includes('clau'));
 }
-window.handleExpCatChange = handleExpCatChange;
 
-function addNewCategory() {
-  const inp = document.getElementById('newCatInput');
-  const val = inp.value.trim();
-  if (!val) { showToast('Nombre de categoría vacío', 'var(--danger)'); return; }
-  if (state.categories.includes(val)) { showToast('Categoría ya existe', 'var(--warn)'); return; }
-  state.categories.push(val);
-  saveAll();
-  renderCatSelect();
-  document.getElementById('expCat').value = val;
-  handleExpCatChange();
-  inp.value = '';
-  showToast(`Categoría "${val}" creada ✓`, 'var(--accent)');
-  renderCategoryList();
+function handleTCOptionsChange(){
+  const tcPaidChecked=document.getElementById('expTCPaid').checked;
+  const hint=document.getElementById('tcPaidHint');
+  if(hint) hint.classList.toggle('hidden',!tcPaidChecked);
 }
-window.addNewCategory = addNewCategory;
+window.handleTCOptionsChange=handleTCOptionsChange;
 
-function submitExpense() {
+function handleClauChange(){
+  const isClau=document.getElementById('expIsClau').checked;
+  document.getElementById('clauLinkWrap').classList.toggle('hidden',!isClau);
+  if(isClau) updateClauIncomeSelect();
+}
+window.handleClauChange=handleClauChange;
+
+function closeClauModal(){ document.getElementById('clauModal').classList.remove('open'); }
+window.closeClauModal=closeClauModal;
+
+/* ── EXPENSE FORM ── */
+function renderCatSelect(){
+  const sel=document.getElementById('expCat');
+  const cur=sel.value||state.categories[0]||'';
+  sel.innerHTML=state.categories.map(c=>`<option value="${c}" ${c===cur?'selected':''}>${c}</option>`).join('')
+    +`<option value="__new__">+ Nueva categoría</option>`;
+}
+function handleExpCatChange(){
+  document.getElementById('newCatWrap').classList.toggle('hidden',document.getElementById('expCat').value!=='__new__');
+}
+window.handleExpCatChange=handleExpCatChange;
+
+function addNewCategory(){
+  const inp=document.getElementById('newCatInput'), val=inp.value.trim();
+  if(!val){showToast('Nombre vacío','var(--danger)');return;}
+  if(state.categories.includes(val)){showToast('Ya existe','var(--warn)');return;}
+  state.categories.push(val); saveAll();
+  renderCatSelect(); renderCategoryList(); renderRenameCatSelect();
+  document.getElementById('expCat').value=val; handleExpCatChange();
+  inp.value=''; showToast(`"${val}" creada ✓`,'var(--accent)');
+}
+window.addNewCategory=addNewCategory;
+
+function submitExpense(){
   const date   = document.getElementById('expDate').value;
   const desc   = document.getElementById('expDesc').value.trim();
   const amount = Number(document.getElementById('expAmount').value);
   const cat    = document.getElementById('expCat').value;
-  const now    = new Date().toISOString();
-  if (!date)             { showToast('Selecciona una fecha', 'var(--danger)'); return; }
-  if (!desc)             { showToast('La descripción es obligatoria', 'var(--danger)'); return; }
-  if (!amount||amount<=0){ showToast('Ingresa un monto válido', 'var(--danger)'); return; }
-  if (!cat||cat==='__new__'){ showToast('Selecciona una categoría válida', 'var(--danger)'); return; }
-  if (editingExpenseId) {
-    const idx = state.expenses.findIndex(e=>e.id===editingExpenseId);
-    if (idx>-1) state.expenses[idx] = {...state.expenses[idx], date, description:desc, amount, category:cat, updatedAt:now};
-    showToast('Gasto actualizado ✓', 'var(--accent)');
+  const payType= currentPayType;
+  const installments = payType==='TC' ? Number(document.getElementById('expInstallments').value)||1 : 1;
+  const isClau = payType==='TC' && document.getElementById('expIsClau').checked;
+  const tcPaid = payType==='TC' && document.getElementById('expTCPaid').checked;
+  const clauLink = isClau ? document.getElementById('clauLinkSelect').value : '';
+  const now = new Date().toISOString();
+
+  if(!date)             {showToast('Selecciona una fecha','var(--danger)');return;}
+  if(!desc)             {showToast('Descripción obligatoria','var(--danger)');return;}
+  if(!amount||amount<=0){showToast('Monto inválido','var(--danger)');return;}
+  if(!cat||cat==='__new__'){showToast('Categoría inválida','var(--danger)');return;}
+
+  const baseMonth=date.slice(0,7);
+  const cuota=installments>1?Math.round(amount/installments):amount;
+
+  if(editingExpenseId){
+    // Update single record
+    const idx=state.expenses.findIndex(e=>e.id===editingExpenseId);
+    if(idx>-1){
+      const old=state.expenses[idx];
+      // Unlink old clau links
+      if(old.clauLinkedIncome){
+        const li=state.income.find(i=>i.id===old.clauLinkedIncome);
+        if(li){delete li.clauLinkedExpense; li.updatedAt=now;}
+      }
+      state.expenses[idx]={...old,date,description:desc,amount,category:cat,payType,isClau,tcPaid,
+        installments:1,clauLinkedIncome:clauLink||undefined,updatedAt:now};
+      // Link new
+      if(clauLink){
+        const li=state.income.find(i=>i.id===clauLink);
+        if(li){li.clauLinkedExpense=editingExpenseId;li.updatedAt=now;}
+      }
+    }
+    showToast('Gasto actualizado ✓','var(--accent)');
     cancelEditExpense();
   } else {
-    state.expenses.push({ id:uid(), date, description:desc, amount, category:cat, createdAt:now, updatedAt:now });
-    showToast('Gasto agregado ✓', 'var(--accent)');
+    // Create (possibly multiple installments)
+    const groupId=uid();
+    for(let n=0;n<installments;n++){
+      const id=uid();
+      const installDate=n===0?date:addMonths(baseMonth,n)+'-01';
+      const entry={
+        id, groupId:installments>1?groupId:undefined,
+        date:installDate, description:desc,
+        amount:cuota, category:cat, payType,
+        installments:installments>1?installments:undefined,
+        installmentNum:installments>1?n+1:undefined,
+        isClau:isClau&&n===0?true:undefined,
+        tcPaid:tcPaid||undefined,
+        clauLinkedIncome:n===0&&clauLink?clauLink:undefined,
+        createdAt:now, updatedAt:now
+      };
+      // Clean undefined keys
+      Object.keys(entry).forEach(k=>entry[k]===undefined&&delete entry[k]);
+      state.expenses.push(entry);
+      // Link income to first installment
+      if(n===0&&clauLink){
+        const li=state.income.find(i=>i.id===clauLink);
+        if(li){li.clauLinkedExpense=id;li.updatedAt=now;}
+      }
+    }
+    const msg=installments>1?`${installments} cuotas de ${fmt(cuota)} creadas ✓`:'Gasto agregado ✓';
+    showToast(msg,'var(--accent)');
     resetExpenseForm();
   }
   saveAll(); renderAll();
 }
-window.submitExpense = submitExpense;
+window.submitExpense=submitExpense;
 
-function resetExpenseForm() {
-  document.getElementById('expDate').value   = todayStr();
-  document.getElementById('expDesc').value   = '';
-  document.getElementById('expAmount').value = '';
-  document.getElementById('expCat').value    = state.categories[0]||'';
+function resetExpenseForm(){
+  document.getElementById('expDate').value=todayStr();
+  document.getElementById('expDesc').value='';
+  document.getElementById('expAmount').value='';
+  document.getElementById('expInstallments').value='1';
+  document.getElementById('expIsClau').checked=false;
+  document.getElementById('expTCPaid').checked=false;
+  document.getElementById('clauLinkWrap').classList.add('hidden');
   document.getElementById('newCatWrap').classList.add('hidden');
-  document.getElementById('newCatInput').value = '';
+  document.getElementById('installmentPreview').classList.add('hidden');
+  setPaymentType('TC');
 }
 
-function cancelEditExpense() {
-  editingExpenseId = null;
-  document.getElementById('expFormTitle').textContent  = 'Nuevo Gasto';
-  document.getElementById('expSubmitBtn').textContent  = 'Agregar gasto';
+function cancelEditExpense(){
+  editingExpenseId=null;
+  document.getElementById('expFormTitle').textContent='Nuevo Gasto';
+  document.getElementById('expSubmitBtn').textContent='Agregar gasto';
   document.getElementById('expCancelBtn').classList.add('hidden');
   resetExpenseForm();
 }
-window.cancelEditExpense = cancelEditExpense;
+window.cancelEditExpense=cancelEditExpense;
 
-function editExpense(id) {
-  const e = state.expenses.find(x=>x.id===id);
-  if (!e) return;
-  editingExpenseId = id;
+function editExpense(id){
+  const e=state.expenses.find(x=>x.id===id);
+  if(!e) return;
+  editingExpenseId=id;
   switchTab('expenses');
-  document.getElementById('expDate').value   = e.date;
-  document.getElementById('expDesc').value   = e.description;
-  document.getElementById('expAmount').value = e.amount;
+  document.getElementById('expDate').value=e.date;
+  document.getElementById('expDesc').value=e.description;
+  document.getElementById('expAmount').value=e.amount;
+  setPaymentType(e.payType||'TC');
   renderCatSelect();
-  document.getElementById('expCat').value = e.category;
+  document.getElementById('expCat').value=e.category;
   handleExpCatChange();
-  document.getElementById('expFormTitle').textContent = 'Editar Gasto';
-  document.getElementById('expSubmitBtn').textContent = 'Actualizar gasto';
+  document.getElementById('expIsClau').checked=!!e.isClau;
+  document.getElementById('expTCPaid').checked=!!e.tcPaid;
+  handleClauChange();
+  document.getElementById('expFormTitle').textContent='Editar Gasto';
+  document.getElementById('expSubmitBtn').textContent='Actualizar gasto';
   document.getElementById('expCancelBtn').classList.remove('hidden');
   document.getElementById('expDate').scrollIntoView({behavior:'smooth',block:'center'});
 }
-window.editExpense = editExpense;
+window.editExpense=editExpense;
 
-function deleteExpense(id) {
-  if (!confirm('¿Eliminar este gasto?')) return;
-  state.expenses = state.expenses.filter(e=>e.id!==id);
-  saveAll(); renderAll();
-  showToast('Gasto eliminado', 'var(--danger)');
+function deleteExpense(id){
+  if(!confirm('¿Eliminar este gasto?')) return;
+  const e=state.expenses.find(x=>x.id===id);
+  if(e?.clauLinkedIncome){
+    const li=state.income.find(i=>i.id===e.clauLinkedIncome);
+    if(li){delete li.clauLinkedExpense; li.updatedAt=new Date().toISOString();}
+  }
+  state.expenses=state.expenses.filter(x=>x.id!==id);
+  saveAll(); renderAll(); showToast('Gasto eliminado','var(--danger)');
 }
-window.deleteExpense = deleteExpense;
+window.deleteExpense=deleteExpense;
 
-/* ================================================================
-   FORMULARIO INGRESOS
-================================================================ */
-function renderSourceSelect() {
-  const sel = document.getElementById('incSource');
-  const cur = sel.value || state.incomeSources[0] || '';
-  sel.innerHTML = state.incomeSources.map(s=>`<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('')
-    + `<option value="__new__">+ Nueva fuente</option>`;
+/* ── INCOME FORM ── */
+function renderSourceSelect(){
+  const sel=document.getElementById('incSource');
+  const cur=sel.value||state.incomeSources[0]||'';
+  sel.innerHTML=state.incomeSources.map(s=>`<option value="${s}" ${s===cur?'selected':''}>${s}</option>`).join('')
+    +`<option value="__new__">+ Nueva fuente</option>`;
 }
-
-function handleIncSourceChange() {
-  const v = document.getElementById('incSource').value;
-  document.getElementById('newSourceWrap').classList.toggle('hidden', v !== '__new__');
+function handleIncSourceChange(){
+  const v=document.getElementById('incSource').value;
+  document.getElementById('newSourceWrap').classList.toggle('hidden',v!=='__new__');
+  const isClauSource=v.toLowerCase().includes('clau');
+  document.getElementById('clauIncLinkWrap').classList.toggle('hidden',!isClauSource);
+  if(isClauSource) updateClauExpenseSelect();
 }
-window.handleIncSourceChange = handleIncSourceChange;
+window.handleIncSourceChange=handleIncSourceChange;
 
-function addNewSource() {
-  const inp = document.getElementById('newSourceInput');
-  const val = inp.value.trim();
-  if (!val) { showToast('Nombre de fuente vacío', 'var(--danger)'); return; }
-  if (state.incomeSources.includes(val)) { showToast('Fuente ya existe', 'var(--warn)'); return; }
-  state.incomeSources.push(val);
-  saveAll();
-  renderSourceSelect();
-  document.getElementById('incSource').value = val;
-  handleIncSourceChange();
-  inp.value = '';
-  showToast(`Fuente "${val}" creada ✓`, 'var(--accent)');
-  renderSourceList();
+function addNewSource(){
+  const inp=document.getElementById('newSourceInput'),val=inp.value.trim();
+  if(!val){showToast('Nombre vacío','var(--danger)');return;}
+  if(state.incomeSources.includes(val)){showToast('Ya existe','var(--warn)');return;}
+  state.incomeSources.push(val); saveAll();
+  renderSourceSelect(); renderSourceList();
+  document.getElementById('incSource').value=val; handleIncSourceChange();
+  inp.value=''; showToast(`"${val}" creada ✓`,'var(--accent)');
 }
-window.addNewSource = addNewSource;
+window.addNewSource=addNewSource;
 
-function submitIncome() {
-  const date   = document.getElementById('incDate').value;
-  const desc   = document.getElementById('incDesc').value.trim();
-  const amount = Number(document.getElementById('incAmount').value);
-  const source = document.getElementById('incSource').value;
-  const now    = new Date().toISOString();
-  if (!date)              { showToast('Selecciona una fecha', 'var(--danger)'); return; }
-  if (!desc)              { showToast('La descripción es obligatoria', 'var(--danger)'); return; }
-  if (!amount||amount<=0) { showToast('Ingresa un monto válido', 'var(--danger)'); return; }
-  if (!source||source==='__new__'){ showToast('Selecciona una fuente válida', 'var(--danger)'); return; }
-  if (editingIncomeId) {
-    const idx = state.income.findIndex(i=>i.id===editingIncomeId);
-    if (idx>-1) state.income[idx] = {...state.income[idx], date, description:desc, amount, source, updatedAt:now};
-    showToast('Ingreso actualizado ✓', 'var(--accent)');
+function submitIncome(){
+  const date  =document.getElementById('incDate').value;
+  const desc  =document.getElementById('incDesc').value.trim();
+  const amount=Number(document.getElementById('incAmount').value);
+  const source=document.getElementById('incSource').value;
+  const clauLink=document.getElementById('clauIncLinkSelect').value;
+  const isClauReturn=source.toLowerCase().includes('clau');
+  const now=new Date().toISOString();
+
+  if(!date) {showToast('Selecciona fecha','var(--danger)');return;}
+  if(!desc) {showToast('Descripción obligatoria','var(--danger)');return;}
+  if(!amount||amount<=0){showToast('Monto inválido','var(--danger)');return;}
+  if(!source||source==='__new__'){showToast('Fuente inválida','var(--danger)');return;}
+
+  if(editingIncomeId){
+    const idx=state.income.findIndex(i=>i.id===editingIncomeId);
+    if(idx>-1){
+      const old=state.income[idx];
+      if(old.clauLinkedExpense){
+        const le=state.expenses.find(e=>e.id===old.clauLinkedExpense);
+        if(le){delete le.clauLinkedIncome;le.updatedAt=now;}
+      }
+      state.income[idx]={...old,date,description:desc,amount,source,isClauReturn:isClauReturn||undefined,
+        clauLinkedExpense:clauLink||undefined,updatedAt:now};
+      if(clauLink){
+        const le=state.expenses.find(e=>e.id===clauLink);
+        if(le){le.clauLinkedIncome=editingIncomeId;le.updatedAt=now;}
+      }
+    }
+    showToast('Ingreso actualizado ✓','var(--accent)');
     cancelEditIncome();
   } else {
-    state.income.push({ id:uid(), date, description:desc, amount, source, createdAt:now, updatedAt:now });
-    showToast('Ingreso agregado ✓', 'var(--accent)');
+    const id=uid();
+    const entry={id,date,description:desc,amount,source,
+      isClauReturn:isClauReturn||undefined,
+      clauLinkedExpense:clauLink||undefined,
+      createdAt:now,updatedAt:now};
+    Object.keys(entry).forEach(k=>entry[k]===undefined&&delete entry[k]);
+    state.income.push(entry);
+    if(clauLink){
+      const le=state.expenses.find(e=>e.id===clauLink);
+      if(le){le.clauLinkedIncome=id;le.updatedAt=now;}
+    }
+    showToast('Ingreso agregado ✓','var(--accent)');
     resetIncomeForm();
   }
   saveAll(); renderAll();
 }
-window.submitIncome = submitIncome;
+window.submitIncome=submitIncome;
 
-function resetIncomeForm() {
-  document.getElementById('incDate').value   = todayStr();
-  document.getElementById('incDesc').value   = '';
-  document.getElementById('incAmount').value = '';
-  document.getElementById('incSource').value = state.incomeSources[0]||'';
+function resetIncomeForm(){
+  document.getElementById('incDate').value=todayStr();
+  document.getElementById('incDesc').value='';
+  document.getElementById('incAmount').value='';
+  document.getElementById('incSource').value=state.incomeSources[0]||'';
   document.getElementById('newSourceWrap').classList.add('hidden');
-  document.getElementById('newSourceInput').value = '';
+  document.getElementById('clauIncLinkWrap').classList.add('hidden');
 }
-
-function cancelEditIncome() {
-  editingIncomeId = null;
-  document.getElementById('incFormTitle').textContent = 'Nuevo Ingreso';
-  document.getElementById('incSubmitBtn').textContent = 'Agregar ingreso';
+function cancelEditIncome(){
+  editingIncomeId=null;
+  document.getElementById('incFormTitle').textContent='Nuevo Ingreso';
+  document.getElementById('incSubmitBtn').textContent='Agregar ingreso';
   document.getElementById('incCancelBtn').classList.add('hidden');
   resetIncomeForm();
 }
-window.cancelEditIncome = cancelEditIncome;
+window.cancelEditIncome=cancelEditIncome;
 
-function editIncome(id) {
-  const i = state.income.find(x=>x.id===id);
-  if (!i) return;
-  editingIncomeId = id;
+function editIncome(id){
+  const i=state.income.find(x=>x.id===id);
+  if(!i) return;
+  editingIncomeId=id;
   switchTab('income');
-  document.getElementById('incDate').value   = i.date;
-  document.getElementById('incDesc').value   = i.description;
-  document.getElementById('incAmount').value = i.amount;
+  document.getElementById('incDate').value=i.date;
+  document.getElementById('incDesc').value=i.description;
+  document.getElementById('incAmount').value=i.amount;
   renderSourceSelect();
-  document.getElementById('incSource').value = i.source;
+  document.getElementById('incSource').value=i.source;
   handleIncSourceChange();
-  document.getElementById('incFormTitle').textContent = 'Editar Ingreso';
-  document.getElementById('incSubmitBtn').textContent = 'Actualizar ingreso';
+  document.getElementById('incFormTitle').textContent='Editar Ingreso';
+  document.getElementById('incSubmitBtn').textContent='Actualizar ingreso';
   document.getElementById('incCancelBtn').classList.remove('hidden');
   document.getElementById('incDate').scrollIntoView({behavior:'smooth',block:'center'});
 }
-window.editIncome = editIncome;
+window.editIncome=editIncome;
 
-function deleteIncome(id) {
-  if (!confirm('¿Eliminar este ingreso?')) return;
-  state.income = state.income.filter(i=>i.id!==id);
-  saveAll(); renderAll();
-  showToast('Ingreso eliminado', 'var(--danger)');
-}
-window.deleteIncome = deleteIncome;
-
-/* ================================================================
-   CATEGORÍAS (Settings)
-================================================================ */
-function renderCategoryList() {
-  const el = document.getElementById('catList');
-  el.innerHTML = state.categories.map(c => {
-    const isBase = BASE_CATS.includes(c);
-    return `<div class="cat-pill">
-      <span>${c}</span>
-      ${!isBase ? `<button onclick="deleteCategory('${c}')" class="btn btn-ghost" style="padding:2px 4px;min-height:auto;border:none;color:var(--muted)" title="Eliminar">×</button>` : ''}
-    </div>`;
-  }).join('');
-}
-
-function addCategoryFromSettings() {
-  const inp = document.getElementById('newCatSettingInput');
-  const val = inp.value.trim();
-  if (!val) { showToast('Ingresa un nombre', 'var(--danger)'); return; }
-  if (state.categories.includes(val)) { showToast('Categoría ya existe', 'var(--warn)'); return; }
-  state.categories.push(val);
-  saveAll(); inp.value = '';
-  renderCategoryList(); renderCatSelect();
-  showToast(`Categoría "${val}" creada ✓`, 'var(--accent)');
-}
-window.addCategoryFromSettings = addCategoryFromSettings;
-
-function deleteCategory(cat) {
-  if (cat === 'Otros') { showToast('"Otros" no puede eliminarse', 'var(--warn)'); return; }
-  const affected = state.expenses.filter(e=>e.category===cat);
-  if (affected.length === 0) {
-    if (!confirm(`¿Eliminar categoría "${cat}"?`)) return;
-    state.categories = state.categories.filter(c=>c!==cat);
-    saveAll(); renderCategoryList(); renderCatSelect();
-    showToast(`Categoría "${cat}" eliminada`, 'var(--danger)');
-    return;
+function deleteIncome(id){
+  if(!confirm('¿Eliminar este ingreso?')) return;
+  const i=state.income.find(x=>x.id===id);
+  if(i?.clauLinkedExpense){
+    const le=state.expenses.find(e=>e.id===i.clauLinkedExpense);
+    if(le){delete le.clauLinkedIncome;le.updatedAt=new Date().toISOString();}
   }
-  const modal = document.getElementById('catDeleteModal');
-  document.getElementById('catDeleteTitle').textContent = `Eliminar "${cat}"`;
-  document.getElementById('catDeleteMsg').textContent   = `Esta categoría tiene ${affected.length} gasto(s) asociado(s). ¿Qué deseas hacer?`;
-  modal.classList.add('open');
-  document.getElementById('catDeleteMove').onclick = () => {
-    state.expenses = state.expenses.map(e => e.category===cat ? {...e,category:'Otros'} : e);
-    state.categories = state.categories.filter(c=>c!==cat);
-    saveAll(); modal.classList.remove('open');
-    renderAll(); renderCategoryList(); renderCatSelect();
-    showToast(`Gastos movidos a "Otros" y categoría eliminada`, 'var(--accent)');
-  };
-  document.getElementById('catDeleteAll').onclick = () => {
-    if (!confirm(`¿Eliminar también los ${affected.length} gasto(s)?`)) return;
-    state.expenses = state.expenses.filter(e=>e.category!==cat);
-    state.categories = state.categories.filter(c=>c!==cat);
-    saveAll(); modal.classList.remove('open');
-    renderAll(); renderCategoryList(); renderCatSelect();
-    showToast(`Gastos y categoría eliminados`, 'var(--danger)');
-  };
-  document.getElementById('catDeleteCancel').onclick = () => modal.classList.remove('open');
+  state.income=state.income.filter(x=>x.id!==id);
+  saveAll(); renderAll(); showToast('Ingreso eliminado','var(--danger)');
 }
-window.deleteCategory = deleteCategory;
+window.deleteIncome=deleteIncome;
 
-/* ================================================================
-   FUENTES (Settings)
-================================================================ */
-function renderSourceList() {
-  const el = document.getElementById('sourceList');
-  el.innerHTML = state.incomeSources.map(s => {
-    const isBase = BASE_SOURCES.includes(s);
-    return `<div class="cat-pill">
-      <span>${s}</span>
-      ${!isBase ? `<button onclick="deleteSource('${s}')" class="btn btn-ghost" style="padding:2px 4px;min-height:auto;border:none;color:var(--muted)" title="Eliminar">×</button>` : ''}
-    </div>`;
+/* ── CATEGORIES ── */
+function renderCategoryList(){
+  document.getElementById('catList').innerHTML=state.categories.map(c=>{
+    const isBase=BASE_CATS.includes(c);
+    return `<div class="cat-pill"><span>${c}</span>${!isBase?`<button onclick="deleteCategory('${c}')" class="btn btn-ghost" style="padding:2px 4px;min-height:auto;border:none;color:var(--muted)">×</button>`:''}</div>`;
   }).join('');
 }
+function renderRenameCatSelect(){
+  const sel=document.getElementById('renameCatFrom');
+  sel.innerHTML=state.categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function addCategoryFromSettings(){
+  const inp=document.getElementById('newCatSettingInput'),val=inp.value.trim();
+  if(!val){showToast('Ingresa un nombre','var(--danger)');return;}
+  if(state.categories.includes(val)){showToast('Ya existe','var(--warn)');return;}
+  state.categories.push(val); saveAll(); inp.value='';
+  renderCategoryList(); renderCatSelect(); renderRenameCatSelect();
+  showToast(`"${val}" creada ✓`,'var(--accent)');
+}
+window.addCategoryFromSettings=addCategoryFromSettings;
 
-function addSourceFromSettings() {
-  const inp = document.getElementById('newSourceSettingInput');
-  const val = inp.value.trim();
-  if (!val) { showToast('Ingresa un nombre', 'var(--danger)'); return; }
-  if (state.incomeSources.includes(val)) { showToast('Fuente ya existe', 'var(--warn)'); return; }
-  state.incomeSources.push(val);
-  saveAll(); inp.value = '';
+function renameCategory(){
+  const from=document.getElementById('renameCatFrom').value;
+  const to=document.getElementById('renameCatTo').value.trim();
+  if(!to){showToast('Escribe el nuevo nombre','var(--danger)');return;}
+  if(state.categories.includes(to)&&to!==from){showToast('Ese nombre ya existe','var(--warn)');return;}
+  state.categories=state.categories.map(c=>c===from?to:c);
+  state.expenses=state.expenses.map(e=>e.category===from?{...e,category:to,updatedAt:new Date().toISOString()}:e);
+  saveAll();
+  document.getElementById('renameCatTo').value='';
+  renderCategoryList(); renderCatSelect(); renderRenameCatSelect(); renderAll();
+  showToast(`"${from}" renombrada a "${to}" ✓`,'var(--accent)');
+}
+window.renameCategory=renameCategory;
+
+function deleteCategory(cat){
+  if(cat==='Otros'){showToast('"Otros" no puede eliminarse','var(--warn)');return;}
+  const affected=state.expenses.filter(e=>e.category===cat);
+  if(!affected.length){
+    if(!confirm(`¿Eliminar categoría "${cat}"?`)) return;
+    state.categories=state.categories.filter(c=>c!==cat);
+    saveAll(); renderCategoryList(); renderCatSelect(); renderRenameCatSelect();
+    showToast(`"${cat}" eliminada`,'var(--danger)'); return;
+  }
+  const modal=document.getElementById('catDeleteModal');
+  document.getElementById('catDeleteTitle').textContent=`Eliminar "${cat}"`;
+  document.getElementById('catDeleteMsg').textContent=`Esta categoría tiene ${affected.length} gasto(s). ¿Qué deseas hacer?`;
+  modal.classList.add('open');
+  document.getElementById('catDeleteMove').onclick=()=>{
+    state.expenses=state.expenses.map(e=>e.category===cat?{...e,category:'Otros'}:e);
+    state.categories=state.categories.filter(c=>c!==cat);
+    saveAll(); modal.classList.remove('open');
+    renderAll(); renderCategoryList(); renderCatSelect(); renderRenameCatSelect();
+    showToast('Gastos movidos a "Otros"','var(--accent)');
+  };
+  document.getElementById('catDeleteAll').onclick=()=>{
+    if(!confirm(`¿Eliminar también los ${affected.length} gasto(s)?`)) return;
+    state.expenses=state.expenses.filter(e=>e.category!==cat);
+    state.categories=state.categories.filter(c=>c!==cat);
+    saveAll(); modal.classList.remove('open');
+    renderAll(); renderCategoryList(); renderCatSelect(); renderRenameCatSelect();
+    showToast('Gastos y categoría eliminados','var(--danger)');
+  };
+  document.getElementById('catDeleteCancel').onclick=()=>modal.classList.remove('open');
+}
+window.deleteCategory=deleteCategory;
+
+/* ── SOURCES ── */
+function renderSourceList(){
+  document.getElementById('sourceList').innerHTML=state.incomeSources.map(s=>{
+    const isBase=BASE_SOURCES.includes(s);
+    return `<div class="cat-pill"><span>${s}</span>${!isBase?`<button onclick="deleteSource('${s}')" class="btn btn-ghost" style="padding:2px 4px;min-height:auto;border:none;color:var(--muted)">×</button>`:''}</div>`;
+  }).join('');
+}
+function addSourceFromSettings(){
+  const inp=document.getElementById('newSourceSettingInput'),val=inp.value.trim();
+  if(!val){showToast('Ingresa un nombre','var(--danger)');return;}
+  if(state.incomeSources.includes(val)){showToast('Ya existe','var(--warn)');return;}
+  state.incomeSources.push(val); saveAll(); inp.value='';
   renderSourceList(); renderSourceSelect();
-  showToast(`Fuente "${val}" creada ✓`, 'var(--accent)');
+  showToast(`"${val}" creada ✓`,'var(--accent)');
 }
-window.addSourceFromSettings = addSourceFromSettings;
-
-function deleteSource(src) {
-  const affected = state.income.filter(i=>i.source===src);
-  if (affected.length > 0) { showToast(`Fuente tiene ${affected.length} ingreso(s) asociado(s)`, 'var(--warn)'); return; }
-  if (!confirm(`¿Eliminar fuente "${src}"?`)) return;
-  state.incomeSources = state.incomeSources.filter(s=>s!==src);
+window.addSourceFromSettings=addSourceFromSettings;
+function deleteSource(src){
+  if(state.income.some(i=>i.source===src)){showToast('Fuente tiene ingresos asociados','var(--warn)');return;}
+  if(!confirm(`¿Eliminar fuente "${src}"?`)) return;
+  state.incomeSources=state.incomeSources.filter(s=>s!==src);
   saveAll(); renderSourceList(); renderSourceSelect();
-  showToast(`Fuente "${src}" eliminada`, 'var(--danger)');
+  showToast(`"${src}" eliminada`,'var(--danger)');
 }
-window.deleteSource = deleteSource;
+window.deleteSource=deleteSource;
 
-/* ================================================================
-   GRÁFICOS
-================================================================ */
-const CHART_COLORS = ['#3fb950','#388bfd','#d29922','#f85149','#a371f7','#39d353','#58a6ff','#ffa657','#ff7b72','#bc8cff','#56d364','#79c0ff','#e3b341','#ffa198','#d2a8ff'];
+/* ── CHARTS ── */
+const CHART_COLORS=['#3fb950','#388bfd','#d29922','#f85149','#a371f7','#39d353','#58a6ff','#ffa657','#ff7b72','#bc8cff','#56d364','#79c0ff','#e3b341','#ffa198','#d2a8ff'];
+function destroyCharts(){ ['pie','bar','line'].forEach(k=>{if(charts[k]){charts[k].destroy();charts[k]=null;}}); }
 
-function destroyCharts() {
-  ['pie','bar','line'].forEach(k => { if (charts[k]) { charts[k].destroy(); charts[k]=null; } });
-}
-
-function renderCharts() {
+function renderCharts(){
   destroyCharts();
-  const exps   = getMonthExpenses(selectedMonth);
-  const met    = calcMetrics(selectedMonth);
-  const dark   = { color: '#8b949e', gridColor: '#21262d' };
+  const exps=getMonthExpenses(selectedMonth), met=calcMetrics(selectedMonth);
+  const dk={color:'#8b949e',grid:'#21262d'};
   // PIE
-  const pieCanvas = document.getElementById('chartPie');
-  const pieEmpty  = document.getElementById('chartPieEmpty');
-  const catEntries = Object.entries(met.byCat).filter(([,v])=>v>0);
-  if (!catEntries.length) { pieCanvas.classList.add('hidden'); pieEmpty.classList.remove('hidden'); }
-  else {
-    pieCanvas.classList.remove('hidden'); pieEmpty.classList.add('hidden');
-    charts.pie = new Chart(pieCanvas, {
-      type:'doughnut',
-      data:{ labels:catEntries.map(([k])=>k), datasets:[{ data:catEntries.map(([,v])=>v), backgroundColor:CHART_COLORS.slice(0,catEntries.length), borderWidth:0, hoverOffset:6 }] },
-      options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'right', labels:{ color:dark.color, font:{size:11,family:'DM Sans'}, boxWidth:12, padding:8 } }, tooltip:{ callbacks:{ label: ctx => ` ${fmt(ctx.parsed)}` } } } }
+  const pc=document.getElementById('chartPie'),pe=document.getElementById('chartPieEmpty');
+  const ce=Object.entries(met.byCat).filter(([,v])=>v>0);
+  if(!ce.length){pc.classList.add('hidden');pe.classList.remove('hidden');}
+  else{pc.classList.remove('hidden');pe.classList.add('hidden');
+    charts.pie=new Chart(pc,{type:'doughnut',
+      data:{labels:ce.map(([k])=>k),datasets:[{data:ce.map(([,v])=>v),backgroundColor:CHART_COLORS.slice(0,ce.length),borderWidth:0,hoverOffset:6}]},
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:'right',labels:{color:dk.color,font:{size:11,family:'DM Sans'},boxWidth:12,padding:8}},tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed)}`}}}}
     });
   }
   // BAR
-  const barCanvas = document.getElementById('chartBar');
-  const barEmpty  = document.getElementById('chartBarEmpty');
-  if (!met.totalInc && !met.totalExp) { barCanvas.classList.add('hidden'); barEmpty.classList.remove('hidden'); }
-  else {
-    barCanvas.classList.remove('hidden'); barEmpty.classList.add('hidden');
-    charts.bar = new Chart(barCanvas, {
-      type:'bar',
-      data:{ labels:['Ingresos','Gastos','Saldo'], datasets:[{ data:[met.totalInc,met.totalExp,Math.abs(met.saldo)], backgroundColor:['rgba(63,185,80,.75)','rgba(248,81,73,.75)',met.saldo>=0?'rgba(56,139,253,.75)':'rgba(210,153,34,.75)'], borderRadius:6, borderWidth:0 }] },
-      options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`}} }, scales:{ x:{ ticks:{color:dark.color,font:{family:'DM Sans'}}, grid:{color:'transparent'} }, y:{ ticks:{color:dark.color,font:{family:'DM Sans'},callback:v=>fmt(v)}, grid:{color:dark.gridColor} } } }
+  const bc=document.getElementById('chartBar'),be=document.getElementById('chartBarEmpty');
+  if(!met.totalInc&&!met.totalExp){bc.classList.add('hidden');be.classList.remove('hidden');}
+  else{bc.classList.remove('hidden');be.classList.add('hidden');
+    charts.bar=new Chart(bc,{type:'bar',
+      data:{labels:['Ingresos','Gastos','Saldo'],datasets:[{data:[met.totalInc,met.totalExp,Math.abs(met.saldo)],backgroundColor:['rgba(63,185,80,.75)','rgba(248,81,73,.75)',met.saldo>=0?'rgba(56,139,253,.75)':'rgba(210,153,34,.75)'],borderRadius:6,borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`}}},scales:{x:{ticks:{color:dk.color,font:{family:'DM Sans'}},grid:{color:'transparent'}},y:{ticks:{color:dk.color,font:{family:'DM Sans'},callback:v=>fmt(v)},grid:{color:dk.grid}}}}
     });
   }
   // LINE
-  const lineCanvas = document.getElementById('chartLine');
-  const lineEmpty  = document.getElementById('chartLineEmpty');
-  if (!exps.length) { lineCanvas.classList.add('hidden'); lineEmpty.classList.remove('hidden'); }
-  else {
-    lineCanvas.classList.remove('hidden'); lineEmpty.classList.add('hidden');
-    const totalDays = daysInMonth(selectedMonth);
-    const dailyCum  = {};
-    exps.forEach(e => { const day = parseInt(e.date.split('-')[2],10); dailyCum[day] = (dailyCum[day]||0) + e.amount; });
-    let cum = 0;
-    const labels=[], data=[];
-    for (let d=1; d<=totalDays; d++) { cum += dailyCum[d]||0; labels.push(d); data.push(cum); }
-    charts.line = new Chart(lineCanvas, {
-      type:'line',
-      data:{ labels, datasets:[{ label:'Gasto acumulado', data, borderColor:'#388bfd', backgroundColor:'rgba(56,139,253,.1)', fill:true, tension:.3, pointRadius:2, pointHoverRadius:5 }] },
-      options:{ responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`}} }, scales:{ x:{ title:{display:true,text:'Día',color:dark.color,font:{family:'DM Sans'}}, ticks:{color:dark.color,font:{family:'DM Sans',size:10},maxTicksLimit:15}, grid:{color:dark.gridColor} }, y:{ ticks:{color:dark.color,font:{family:'DM Sans'},callback:v=>fmt(v)}, grid:{color:dark.gridColor} } } }
+  const lc=document.getElementById('chartLine'),le=document.getElementById('chartLineEmpty');
+  if(!exps.length){lc.classList.add('hidden');le.classList.remove('hidden');}
+  else{lc.classList.remove('hidden');le.classList.add('hidden');
+    const td=daysInMonth(selectedMonth),dc={};
+    exps.forEach(e=>{const d=parseInt(e.date.split('-')[2],10);dc[d]=(dc[d]||0)+e.amount;});
+    let cum=0;const labels=[],data=[];
+    for(let d=1;d<=td;d++){cum+=(dc[d]||0);labels.push(d);data.push(cum);}
+    charts.line=new Chart(lc,{type:'line',
+      data:{labels,datasets:[{label:'Gasto acumulado',data,borderColor:'#388bfd',backgroundColor:'rgba(56,139,253,.1)',fill:true,tension:.3,pointRadius:2,pointHoverRadius:5}]},
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${fmt(ctx.parsed.y)}`}}},scales:{x:{title:{display:true,text:'Día',color:dk.color},ticks:{color:dk.color,font:{family:'DM Sans',size:10},maxTicksLimit:15},grid:{color:dk.grid}},y:{ticks:{color:dk.color,font:{family:'DM Sans'},callback:v=>fmt(v)},grid:{color:dk.grid}}}}
     });
   }
 }
 
-/* ================================================================
-   EXPORTACIONES
-================================================================ */
-function copyAISummary() {
-  const ym  = selectedMonth;
-  const met = calcMetrics(ym);
-  const budget = getBudget(ym);
-  const exps = getMonthExpenses(ym);
-  const top5 = sortRecords(exps).slice(0,5);
-  const byCatLines = Object.entries(met.byCat).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`  - ${c}: ${fmt(a)}`).join('\n');
-  const top5lines  = top5.map((e,i)=>`  ${i+1}. ${e.date} | ${e.description} | ${fmt(e.amount)} | ${e.category}`).join('\n');
-  let budgetLine = 'No definido';
-  if (budget) {
-    const rem = budget - met.totalExp;
-    budgetLine = `${fmt(budget)}\n${rem>=0?'Presupuesto restante':'Presupuesto excedido en'}: ${fmt(Math.abs(rem))}`;
-  }
-  const text = [
+/* ── EXPORTS ── */
+function copyAISummary(){
+  const ym=selectedMonth, met=calcMetrics(ym), budget=getBudget(ym);
+  const exps=getMonthExpenses(ym), top5=sortRecords(exps).slice(0,5);
+  const byCatLines=Object.entries(met.byCat).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`  - ${c}: ${fmt(a)}`).join('\n');
+  const top5lines=top5.map((e,i)=>`  ${i+1}. ${e.date} | ${e.description} | ${fmt(e.amount)} | ${e.category}`).join('\n');
+  let budgetLine='No definido';
+  if(budget){const rem=budget-met.totalExp; budgetLine=`${fmt(budget)}\n${rem>=0?'Presupuesto restante':'Excedido en'}: ${fmt(Math.abs(rem))}`;}
+  const clau=getClauBalance();
+  const text=[
     `Mes: ${ym} (${monthLabel(ym)})`,
-    `Ingresos del fondo común: ${fmt(met.totalInc)}`,
-    `Total gastado: ${fmt(met.totalExp)}`,
-    `${met.saldo>=0?'Saldo disponible':'Mes excedido en'}: ${fmt(Math.abs(met.saldo))}`,
-    `Porcentaje del ingreso gastado: ${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos registrados'}`,
-    `Categoría con mayor gasto: ${met.topCat||'—'} (${fmt(met.topAmt)})`,
+    `Ingresos: ${fmt(met.totalInc)}`,
+    `Gastos: ${fmt(met.totalExp)} (TC: ${fmt(met.byType.TC||0)} · Débito: ${fmt(met.byType.DB||0)})`,
+    `${met.saldo>=0?'Saldo disponible':'Excedido'}: ${fmt(Math.abs(met.saldo))}`,
+    `% gastado: ${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}`,
+    `Mayor categoría: ${met.topCat||'—'} (${fmt(met.topAmt)})`,
     `Gasto diario promedio: ${fmt(Math.round(met.dailyAvg))}`,
-    `${ym===currentMonthStr()?'Proyección de gasto mensual':'Gasto real del mes'}: ${fmt(Math.round(met.projection))}`,
-    `Presupuesto mensual: ${budgetLine}`,
-    '',
-    'Top 5 gastos del mes:',
-    top5lines || '  Sin gastos',
-    '',
-    'Distribución por categoría:',
-    byCatLines || '  Sin gastos',
-  ].join('\n');
+    `${ym===currentMonthStr()?'Proyección':'Gasto real'}: ${fmt(Math.round(met.projection))}`,
+    `Presupuesto: ${budgetLine}`,
+    clau.gastos>0?`\nClau — Falta ingresar al fondo: ${fmt(Math.max(0,clau.pending))}`:'',
+    `\nTC — Cupo disponible: ${fmt((state.settings.tcLimit||3100000)-getTCUsed())}`,
+    '',`Top 5 gastos:\n${top5lines||'  Sin gastos'}`,
+    '',`Por categoría:\n${byCatLines||'  Sin gastos'}`,
+  ].filter(l=>l!==undefined).join('\n');
   navigator.clipboard.writeText(text)
     .then(()=>showToast('Resumen copiado ✓','var(--accent)'))
     .catch(()=>showToast('No se pudo copiar','var(--danger)'));
 }
-window.copyAISummary = copyAISummary;
+window.copyAISummary=copyAISummary;
 
-function buildCSV(rows, headers) {
-  return '\uFEFF' + [headers.join(';'), ...rows].join('\r\n');
+function buildCSV(rows,headers){ return '\uFEFF'+[headers.join(';'),...rows].join('\r\n'); }
+
+function exportExpensesCSV(){
+  const exps=sortRecords(getMonthExpenses(selectedMonth));
+  if(!exps.length){showToast('No hay gastos','var(--warn)');return;}
+  downloadFile(buildCSV(exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category),e.payType||'TC',e.installments||1,e.installmentNum||1,e.isClau?'Sí':'No',e.tcPaid?'Sí':'No'].join(';')),['fecha','descripcion','monto','categoria','tipo_pago','cuotas','cuota_num','es_clau','tc_pagada']),`gastos_${selectedMonth}.csv`,'text/csv;charset=utf-8');
+  showToast('CSV descargado ✓','var(--accent)');
 }
+window.exportExpensesCSV=exportExpensesCSV;
 
-function exportExpensesCSV() {
-  const exps = sortRecords(getMonthExpenses(selectedMonth));
-  if (!exps.length) { showToast('No hay gastos para exportar','var(--warn)'); return; }
-  downloadFile(buildCSV(exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category)].join(';')),['fecha','descripcion','monto','categoria']), `gastos_${selectedMonth}.csv`, 'text/csv;charset=utf-8');
-  showToast('CSV de gastos descargado ✓','var(--accent)');
+function exportIncomeCSV(){
+  const incs=sortRecords(getMonthIncome(selectedMonth));
+  if(!incs.length){showToast('No hay ingresos','var(--warn)');return;}
+  downloadFile(buildCSV(incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source),i.isClauReturn?'Sí':'No'].join(';')),['fecha','descripcion','monto','fuente','es_clau']),`ingresos_${selectedMonth}.csv`,'text/csv;charset=utf-8');
+  showToast('CSV descargado ✓','var(--accent)');
 }
-window.exportExpensesCSV = exportExpensesCSV;
+window.exportIncomeCSV=exportIncomeCSV;
 
-function exportIncomeCSV() {
-  const incs = sortRecords(getMonthIncome(selectedMonth));
-  if (!incs.length) { showToast('No hay ingresos para exportar','var(--warn)'); return; }
-  downloadFile(buildCSV(incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')),['fecha','descripcion','monto','fuente']), `ingresos_${selectedMonth}.csv`, 'text/csv;charset=utf-8');
-  showToast('CSV de ingresos descargado ✓','var(--accent)');
-}
-window.exportIncomeCSV = exportIncomeCSV;
-
-function monthClose() {
-  const ym = selectedMonth;
-  const met = calcMetrics(ym);
-  const budget = getBudget(ym);
-  const exps = getMonthExpenses(ym);
-  const incs = getMonthIncome(ym);
-  const now  = new Date().toISOString();
-  const closure = {
-    mes:ym, fechaGeneracion:now, presupuesto:budget,
-    totalIngresos:met.totalInc, totalGastos:met.totalExp,
-    saldoDisponible:met.saldo, porcentajeGastado:met.pct,
-    gastoDiarioPromedio:met.dailyAvg, proyeccionMensual:met.projection,
-    totalesPorCategoria:met.byCat, gastos:exps, ingresos:incs
-  };
-  downloadFile(JSON.stringify(closure,null,2), `cierre_${ym}.json`, 'application/json');
-  const BOM = '\uFEFF';
-  const csvLines = [
-    `CIERRE DE MES - ${monthLabel(ym)}`,
-    '',
-    `Generado;${now}`,
-    `Presupuesto;${budget||'No definido'}`,
-    `Total Ingresos;${met.totalInc}`,
-    `Total Gastos;${met.totalExp}`,
-    `Saldo;${met.saldo}`,
-    `Porcentaje gastado;${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}`,
-    `Gasto diario promedio;${Math.round(met.dailyAvg)}`,
-    '',
-    'INGRESOS',
-    'fecha;descripcion;monto;fuente',
-    ...incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')),
-    '',
-    'GASTOS',
-    'fecha;descripcion;monto;categoria',
-    ...exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category)].join(';')),
-  ];
-  downloadFile(BOM + csvLines.join('\r\n'), `cierre_${ym}.csv`, 'text/csv;charset=utf-8');
-  if (confirm('¿Deseas eliminar los gastos e ingresos de este mes después del cierre?')) {
-    if (confirm(`Esta acción eliminará los registros de ${monthLabel(ym)}. Se guardará un respaldo en Firestore. ¿Confirmas?`)) {
-      const backupRef = doc(db, 'backups', `${ym}_${Date.now()}`);
-      setDoc(backupRef, { closure, savedAt: now }).catch(console.error);
-      state.expenses = state.expenses.filter(e=>!e.date.startsWith(ym));
-      state.income   = state.income.filter(i=>!i.date.startsWith(ym));
+function monthClose(){
+  const ym=selectedMonth, met=calcMetrics(ym), budget=getBudget(ym);
+  const exps=getMonthExpenses(ym), incs=getMonthIncome(ym), now=new Date().toISOString();
+  const closure={mes:ym,fechaGeneracion:now,presupuesto:budget,totalIngresos:met.totalInc,totalGastos:met.totalExp,saldoDisponible:met.saldo,porcentajeGastado:met.pct,gastoDiarioPromedio:met.dailyAvg,proyeccionMensual:met.projection,totalesPorCategoria:met.byCat,gastos:exps,ingresos:incs};
+  downloadFile(JSON.stringify(closure,null,2),`cierre_${ym}.json`,'application/json');
+  const csvLines=[`CIERRE DE MES - ${monthLabel(ym)}`,'',`Generado;${now}`,`Presupuesto;${budget||'No definido'}`,`Total Ingresos;${met.totalInc}`,`Total Gastos;${met.totalExp}`,`Saldo;${met.saldo}`,`% gastado;${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}`,'','INGRESOS','fecha;descripcion;monto;fuente',...incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')),'','GASTOS','fecha;descripcion;monto;categoria;tipo',...exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category),e.payType||'TC'].join(';'))];
+  downloadFile('\uFEFF'+csvLines.join('\r\n'),`cierre_${ym}.csv`,'text/csv;charset=utf-8');
+  if(confirm('¿Eliminar los registros de este mes después del cierre?')){
+    if(confirm(`Esto eliminará los registros de ${monthLabel(ym)}. Se guardará respaldo en Firestore. ¿Confirmas?`)){
+      const backupRef=doc(db,'backups',`${ym}_${Date.now()}`);
+      setDoc(backupRef,{closure,savedAt:now}).catch(console.error);
+      state.expenses=state.expenses.filter(e=>!e.date.startsWith(ym));
+      state.income=state.income.filter(i=>!i.date.startsWith(ym));
       saveAll(); renderAll();
-      showToast(`Registros de ${monthLabel(ym)} eliminados. Respaldo guardado en la nube.`, 'var(--accent)');
+      showToast(`Registros eliminados. Respaldo guardado.`,'var(--accent)');
     }
-  } else {
-    showToast('Cierre descargado. Registros no eliminados.', 'var(--accent)');
-  }
+  } else showToast('Cierre descargado sin eliminar.','var(--accent)');
 }
-window.monthClose = monthClose;
+window.monthClose=monthClose;
 
-function exportBackup() {
-  const data = {
-    version:1, exportedAt:new Date().toISOString(),
-    expenses:state.expenses, income:state.income,
-    categories:state.categories, incomeSources:state.incomeSources,
-    budgets:state.budgets
-  };
-  downloadFile(JSON.stringify(data,null,2), `respaldo_fondo_comun_${todayStr()}.json`, 'application/json');
+function exportBackup(){
+  downloadFile(JSON.stringify({version:1,exportedAt:new Date().toISOString(),expenses:state.expenses,income:state.income,categories:state.categories,incomeSources:state.incomeSources,budgets:state.budgets,settings:state.settings},null,2),`respaldo_${todayStr()}.json`,'application/json');
   showToast('Respaldo exportado ✓','var(--accent)');
 }
-window.exportBackup = exportBackup;
+window.exportBackup=exportBackup;
 
-function importBackup(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async e => {
-    let data;
-    try { data = JSON.parse(e.target.result); } catch { showToast('Archivo JSON inválido','var(--danger)'); return; }
-    if (!data||!Array.isArray(data.expenses)||!Array.isArray(data.income)||!Array.isArray(data.categories)||!Array.isArray(data.incomeSources)) { showToast('Estructura del respaldo inválida','var(--danger)'); return; }
-    if (!confirm('Esto reemplazará todos los datos actuales con el respaldo. ¿Confirmas?')) return;
-    state.expenses      = data.expenses;
-    state.income        = data.income;
-    state.categories    = data.categories;
-    state.incomeSources = data.incomeSources;
-    if (data.budgets) { state.budgets = data.budgets; await setDoc(DOCS.budgets, data.budgets); }
-    saveAll(); renderAll(); renderCategoryList(); renderSourceList(); renderCatSelect(); renderSourceSelect();
-    showToast('Respaldo importado y sincronizado ✓','var(--accent)');
+function importBackup(event){
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    let data; try{data=JSON.parse(e.target.result);}catch{showToast('JSON inválido','var(--danger)');return;}
+    if(!Array.isArray(data.expenses)||!Array.isArray(data.income)){showToast('Estructura inválida','var(--danger)');return;}
+    if(!confirm('Esto reemplazará todos los datos actuales. ¿Confirmas?')) return;
+    state.expenses=data.expenses; state.income=data.income;
+    state.categories=data.categories||[...DEFAULT_CATEGORIES];
+    state.incomeSources=data.incomeSources||[...DEFAULT_SOURCES];
+    state.budgets=data.budgets||{}; state.settings=data.settings||{...DEFAULT_SETTINGS};
+    if(data.settings) await saveSettings();
+    await saveBudgetDoc();
+    saveAll(); renderAll(); renderCategoryList(); renderSourceList(); renderCatSelect(); renderSourceSelect(); renderRenameCatSelect();
+    showToast('Respaldo importado ✓','var(--accent)');
   };
-  reader.readAsText(file);
-  event.target.value = '';
+  reader.readAsText(file); event.target.value='';
 }
-window.importBackup = importBackup;
+window.importBackup=importBackup;
 
-/* ================================================================
-   RENDER ALL
-================================================================ */
-function renderAll() {
-  renderMetrics();
-  renderBudget();
-  renderExpenseHistory('expenseHistDash');
-  renderExpenseHistory('expenseHistFull');
-  renderIncomeHistory('incomeHistDash');
-  renderIncomeHistory('incomeHistFull');
-  const chartsTab = document.getElementById('tab-charts');
-  if (chartsTab.classList.contains('active')) renderCharts();
+/* ── RENDER ALL ── */
+function renderAll(){
+  renderMetrics(); renderBudget(); renderTCBanner(); renderClauBanner();
+  renderExpenseHistory('expenseHistDash'); renderExpenseHistory('expenseHistFull');
+  renderIncomeHistory('incomeHistDash'); renderIncomeHistory('incomeHistFull');
+  if(document.getElementById('tab-charts').classList.contains('active')) renderCharts();
 }
 
-// Expose tab/budget functions for onclick handlers
-window.switchTab           = switchTab;
-window.saveBudget          = saveBudget;
-window.addCategoryFromSettings = addCategoryFromSettings;
-window.addSourceFromSettings   = addSourceFromSettings;
-
-/* ================================================================
-   INIT
-================================================================ */
-async function init() {
-  // Show loading state
-  document.getElementById('appLoading').style.display = 'flex';
-  document.getElementById('appContent').style.display = 'none';
-
+/* ── INIT ── */
+async function init(){
+  document.getElementById('appLoading').style.display='flex';
+  document.getElementById('appContent').style.display='none';
   await loadData();
-
-  initMonth();
-  selectedMonth = document.getElementById('monthSelector').value;
-  document.getElementById('expDate').value = todayStr();
-  document.getElementById('incDate').value = todayStr();
-  renderCatSelect();
-  renderSourceSelect();
-  renderCategoryList();
-  renderSourceList();
+  initMonth(); selectedMonth=document.getElementById('monthSelector').value;
+  document.getElementById('expDate').value=todayStr();
+  document.getElementById('incDate').value=todayStr();
+  renderCatSelect(); renderSourceSelect(); renderCategoryList(); renderSourceList(); renderRenameCatSelect();
   renderAll();
-
-  // Hide loading, show app
-  document.getElementById('appLoading').style.display = 'none';
-  document.getElementById('appContent').style.display = 'block';
-
-  isInitialized = true;
+  document.getElementById('appLoading').style.display='none';
+  document.getElementById('appContent').style.display='block';
+  isInitialized=true;
   startRealtimeSync();
 }
-
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
