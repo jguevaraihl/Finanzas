@@ -1106,25 +1106,58 @@ function submitExpense(){
         const li=state.income.find(i=>i.id===old.clauLinkedIncome);
         if(li){delete li.clauLinkedExpense; li.updatedAt=now;}
       }
-      state.expenses[idx]=cleanObj({
-        ...old,
-        date, description:desc,
-        amount,
-        category:cat, payType,
-        isClau: isClau || undefined,
-        tcPaid: tcPaid || undefined,
-        installments: old.installments || undefined,
-        installmentNum: old.installmentNum || undefined,
-        groupId: old.groupId || undefined,
-        clauLinkedIncome: clauLink || undefined,
-        updatedAt: now
-      });
-      if(clauLink){
-        const li=state.income.find(i=>i.id===clauLink);
-        if(li){li.clauLinkedExpense=editingExpenseId;li.updatedAt=now;}
+
+      // Caso crítico: un gasto antiguo/suelto se edita y ahora se define en cuotas.
+      // En ese caso NO debe quedar el monto total en el mes. Se elimina el registro original
+      // y se crean N registros mensuales, cada uno por el valor de su cuota.
+      if(installments>1){
+        const groupId=uid();
+        const newEntries=[];
+        cuotas.forEach((cuota,n)=>{
+          const id=n===0 ? editingExpenseId : uid();
+          const installDate=mes0
+            ? addMonths(baseMonth,n+1)+'-01'
+            : (n===0 ? date : addMonths(baseMonth,n)+'-01');
+          newEntries.push(cleanObj({
+            id, groupId,
+            date:installDate, description:desc,
+            amount:cuota, category:cat, payType,
+            totalAmount:amount,
+            installments, installmentNum:n+1,
+            isClau:isClau&&n===0?true:undefined,
+            tcPaid:tcPaid||undefined,
+            clauLinkedIncome:n===0&&clauLink?clauLink:undefined,
+            createdAt:old.createdAt||now, updatedAt:now
+          }));
+        });
+        state.expenses.splice(idx,1,...newEntries);
+        if(clauLink){
+          const li=state.income.find(i=>i.id===clauLink);
+          if(li){li.clauLinkedExpense=editingExpenseId;li.updatedAt=now;}
+        }
+        showToast(`${installments} cuotas creadas. Este mes queda ${fmt(cuotas[0])} ✓`,'var(--accent)');
+      } else {
+        state.expenses[idx]=cleanObj({
+          ...old,
+          date, description:desc,
+          amount,
+          category:cat, payType,
+          isClau: isClau || undefined,
+          tcPaid: tcPaid || undefined,
+          totalAmount: undefined,
+          installments: undefined,
+          installmentNum: undefined,
+          groupId: undefined,
+          clauLinkedIncome: clauLink || undefined,
+          updatedAt: now
+        });
+        if(clauLink){
+          const li=state.income.find(i=>i.id===clauLink);
+          if(li){li.clauLinkedExpense=editingExpenseId;li.updatedAt=now;}
+        }
+        showToast('Gasto actualizado ✓','var(--accent)');
       }
     }
-    showToast('Gasto actualizado ✓','var(--accent)');
     cancelEditExpense();
   } else if(editingGroupMode && editingGroupId){
     state.expenses=state.expenses.filter(x=>x.groupId!==editingGroupId);
@@ -1231,6 +1264,8 @@ function editExpense(id){
   if(cuotaDisp) cuotaDisp.classList.add('hidden');
   const instWrap=document.getElementById('installmentsWrap');
   if(instWrap) instWrap.style.display='';
+  const instSel=document.getElementById('expInstallments');
+  if(instSel) instSel.value=String(e.installments||1);
   setPaymentType(e.payType||'TC');
   renderCatSelect();
   document.getElementById('expCat').value=e.category;
