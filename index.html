@@ -279,7 +279,7 @@ input[type="month"]{max-width:180px;}
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label for="expAmount" id="expAmountLabel">Monto total de la compra (CLP)</label>
-          <input type="number" id="expAmount" placeholder="Ej: 120000" min="1" step="1" oninput="updateInstallmentPreview()" />
+          <input type="number" id="expAmount" placeholder="Ej: 120000" step="1" oninput="updateInstallmentPreview()" />
           <div id="expCuotaDisplay" class="hidden mono text-xs mt-1" style="color:var(--purple)"></div>
         </div>
         <!-- Cuotas (solo TC) -->
@@ -311,6 +311,10 @@ input[type="month"]{max-width:180px;}
           </label>
         </div>
       </div>
+      <label class="flex items-start gap-2 cursor-pointer" style="color:var(--text)">
+        <input type="checkbox" id="expIsNegative" onchange="handleNegativeExpenseChange()" />
+        <span style="font-size:14px;line-height:1.3">Gasto negativo / reversa <span style="color:var(--muted)">(descuenta directamente de la categoría, no se registra como ingreso)</span></span>
+      </label>
       <!-- Preview cuotas -->
       <div id="installmentPreview" class="hidden" style="background:rgba(163,113,247,.08);border:1px solid rgba(163,113,247,.2);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--purple)"></div>
       <div>
@@ -876,7 +880,7 @@ function renderBudget(){
   document.getElementById('budgetInput').value=budget||'';
   if(!budget){disp.innerHTML=`<p style="color:var(--muted);font-size:13px">No hay presupuesto definido para este mes.</p>`;return;}
   const met=calcMetrics(selectedMonth);
-  const pct=Math.min(met.totalExp/budget*100,200);
+  const pct=Math.max(0,Math.min(met.totalExp/budget*100,200));
   const rem=budget-met.totalExp;
   const color=pct<70?'var(--accent)':pct<100?'var(--warn)':'var(--danger)';
   disp.innerHTML=`
@@ -900,6 +904,7 @@ function sortRecords(arr){
 }
 
 function payTypeBadge(e){
+  if(expenseAmount(e)<0) return `<span class="badge badge-green">Reversa</span>`;
   if(e.payType==='DB') return `<span class="badge badge-green">Débito</span>`;
   const q=e.installments||1;
   const qLabel=q>1?` ${e.installmentNum||1}/${q}`:'';
@@ -920,9 +925,9 @@ function renderExpenseHistory(containerId){
   ${exps.map(e=>`<tr>
     <td>${e.date}</td>
     <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">
-      ${e.isClau?'<span style="color:var(--purple);font-size:11px;font-weight:700">CLAU </span>':''}${e.description}
+      ${expenseAmount(e)<0?'<span style="color:var(--accent);font-size:11px;font-weight:700">REVERSA </span>':''}${e.isClau?'<span style="color:var(--purple);font-size:11px;font-weight:700">CLAU </span>':''}${e.description}
     </td>
-    <td class="mono">${fmt(expenseAmount(e))}</td>
+    <td class="mono" style="color:${expenseAmount(e)<0?'var(--accent)':'var(--text)'}">${fmt(expenseAmount(e))}</td>
     <td><span class="badge">${e.category}</span></td>
     <td>${payTypeBadge(e)}</td>
     <td><div class="flex gap-1">
@@ -1017,29 +1022,44 @@ function setPaymentType(type){
 window.setPaymentType=setPaymentType;
 
 function updateInstallmentPreview(){
-  const amount=Number(document.getElementById('expAmount').value);
-  const installments=Number(document.getElementById('expInstallments').value)||1;
+  const rawAmount=Number(document.getElementById('expAmount').value);
+  const isNegative=(document.getElementById('expIsNegative')?.checked||false) || rawAmount<0;
+  const amount=Math.abs(rawAmount);
+  const installments=isNegative ? 1 : (Number(document.getElementById('expInstallments').value)||1);
   const preview=document.getElementById('installmentPreview');
   const mes0Wrap=document.getElementById('mes0Wrap');
   const amtLabel=document.getElementById('expAmountLabel');
   const cuotaDisplay=document.getElementById('expCuotaDisplay');
-  // Show mes0 checkbox only when >1 cuota
-  if(mes0Wrap) mes0Wrap.classList.toggle('hidden', currentPayType!=='TC'||installments<=1);
-  // Update label depending on context
+  const instWrap=document.getElementById('installmentsWrap');
+
+  if(instWrap){
+    instWrap.style.display = (currentPayType==='TC' && !isNegative) ? '' : 'none';
+  }
+  if(mes0Wrap) mes0Wrap.classList.toggle('hidden', currentPayType!=='TC'||installments<=1||isNegative);
+
   if(amtLabel){
-    amtLabel.textContent = installments>1
-      ? `Monto total de la compra (CLP) — cuota: ${amount ? fmt(Math.round(amount/installments)) : '?'}`
-      : 'Monto (CLP)';
+    if(isNegative){
+      amtLabel.textContent='Monto de reversa / gasto negativo (CLP)';
+    } else {
+      amtLabel.textContent = installments>1
+        ? `Monto total de la compra (CLP) — cuota: ${amount ? fmt(Math.round(amount/installments)) : '?'}`
+        : 'Monto (CLP)';
+    }
   }
   if(cuotaDisplay){
-    if(installments>1&&amount){
+    if(isNegative&&amount){
+      cuotaDisplay.textContent=`Se descontará ${fmt(amount)} de la categoría seleccionada.`;
+      cuotaDisplay.style.color='var(--accent)';
+      cuotaDisplay.classList.remove('hidden');
+    } else if(installments>1&&amount){
       cuotaDisplay.textContent=`Cuota aprox.: ${fmt(Math.round(amount/installments))} × ${installments} = ${fmt(amount)}`;
+      cuotaDisplay.style.color='var(--purple)';
       cuotaDisplay.classList.remove('hidden');
     } else {
       cuotaDisplay.classList.add('hidden');
     }
   }
-  if(currentPayType!=='TC'||installments<=1||!amount){ preview.classList.add('hidden'); return; }
+  if(isNegative||currentPayType!=='TC'||installments<=1||!amount){ preview.classList.add('hidden'); return; }
   const mes0=document.getElementById('expMes0')?.checked||false;
   const cuotas=splitInstallments(amount,installments);
   const cuota=cuotas[0]||0;
@@ -1049,7 +1069,6 @@ function updateInstallmentPreview(){
   if(mes0) html+=` <span style="color:var(--muted)">(cuotas desde ${addMonths(baseMonth,1)})</span>`;
   html+='<br>';
   if(mes0){
-    // mes0: cuotas start next month, no charge recorded for current month
     for(let i=0;i<installments;i++){
       html+=i===0?'':' · ';
       html+=`${addMonths(baseMonth,i+1)}: ${fmt(cuotas[i])}`;
@@ -1062,6 +1081,14 @@ function updateInstallmentPreview(){
   }
   preview.innerHTML=html; preview.classList.remove('hidden');
 }
+
+function handleNegativeExpenseChange(){
+  const isNegative=document.getElementById('expIsNegative')?.checked||false;
+  const instSel=document.getElementById('expInstallments');
+  if(isNegative && instSel) instSel.value='1';
+  updateInstallmentPreview();
+}
+window.handleNegativeExpenseChange=handleNegativeExpenseChange;
 window.updateInstallmentPreview=updateInstallmentPreview;
 
 /* ── CLAU SELECTS ── */
@@ -1133,10 +1160,13 @@ window.addNewCategory=addNewCategory;
 function submitExpense(){
   const date   = document.getElementById('expDate').value;
   const desc   = document.getElementById('expDesc').value.trim();
-  const amount = Number(document.getElementById('expAmount').value);
+  const rawAmount = Number(document.getElementById('expAmount').value);
+  const isNegative = (document.getElementById('expIsNegative')?.checked || false) || rawAmount < 0;
+  const amountAbs = Math.abs(rawAmount);
+  const amount = isNegative ? -amountAbs : amountAbs;
   const cat    = document.getElementById('expCat').value;
   const payType= currentPayType;
-  const installments = payType==='TC' ? Number(document.getElementById('expInstallments').value)||1 : 1;
+  const installments = (!isNegative && payType==='TC') ? Number(document.getElementById('expInstallments').value)||1 : 1;
   const isClau = payType==='TC' && document.getElementById('expIsClau').checked;
   const tcPaid = payType==='TC' && document.getElementById('expTCPaid').checked;
   const clauLink = isClau ? document.getElementById('clauLinkSelect').value : '';
@@ -1144,12 +1174,12 @@ function submitExpense(){
 
   if(!date)             {showToast('Selecciona una fecha','var(--danger)');return;}
   if(!desc)             {showToast('Descripción obligatoria','var(--danger)');return;}
-  if(!amount||amount<=0){showToast('Monto inválido','var(--danger)');return;}
+  if(!amountAbs||amountAbs<=0){showToast('Monto inválido','var(--danger)');return;}
   if(!cat||cat==='__new__'){showToast('Categoría inválida','var(--danger)');return;}
 
-  const mes0 = payType==='TC' && installments>1 && (document.getElementById('expMes0')?.checked||false);
+  const mes0 = !isNegative && payType==='TC' && installments>1 && (document.getElementById('expMes0')?.checked||false);
   const baseMonth=date.slice(0,7);
-  const cuotas = splitInstallments(amount,installments);
+  const cuotas = splitInstallments(amountAbs,installments).map(v=>isNegative ? -v : v);
 
   if(editingExpenseId && !editingGroupMode){
     const idx=state.expenses.findIndex(e=>e.id===editingExpenseId);
@@ -1270,6 +1300,7 @@ function resetExpenseForm(){
   document.getElementById('expDate').value=todayStr();
   document.getElementById('expDesc').value='';
   document.getElementById('expAmount').value='';
+  const negCb=document.getElementById('expIsNegative'); if(negCb) negCb.checked=false;
   document.getElementById('expInstallments').value='1';
   const mes0cb=document.getElementById('expMes0'); if(mes0cb) mes0cb.checked=false;
   const mes0wr=document.getElementById('mes0Wrap'); if(mes0wr) mes0wr.classList.add('hidden');
@@ -1310,7 +1341,8 @@ function editExpense(id){
   switchTab('expenses');
   document.getElementById('expDate').value=e.date;
   document.getElementById('expDesc').value=e.description;
-  document.getElementById('expAmount').value=e.amount;
+  document.getElementById('expAmount').value=Math.abs(expenseAmount(e));
+  const negCb=document.getElementById('expIsNegative'); if(negCb) negCb.checked=expenseAmount(e)<0;
   const amtLbl=document.getElementById('expAmountLabel');
   if(amtLbl) amtLbl.textContent='Monto (CLP)';
   const cuotaDisp=document.getElementById('expCuotaDisplay');
@@ -1343,7 +1375,8 @@ function editExpenseGroup(groupId){
   document.getElementById('expDate').value=first.date;
   document.getElementById('expDesc').value=first.description;
   // Show total amount (cuota * installments)
-  document.getElementById('expAmount').value=first.amount*group.length;
+  document.getElementById('expAmount').value=Math.abs(expenseAmount(first))*group.length;
+  const negCb=document.getElementById('expIsNegative'); if(negCb) negCb.checked=false;
   const amtLbl=document.getElementById('expAmountLabel');
   if(amtLbl) amtLbl.textContent=`Monto total de la compra (CLP) — editando ${group.length} cuotas`;
   const instWrap=document.getElementById('installmentsWrap');
