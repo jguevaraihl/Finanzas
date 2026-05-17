@@ -243,6 +243,12 @@ input[type="month"]{max-width:180px;}
     <div class="section-title">Historial de Gastos</div>
     <div class="hist-wrap" id="expenseHistDash"></div>
   </div>
+
+  <div class="card mb-4">
+    <div class="section-title">Gastos futuros en cuotas</div>
+    <div class="hist-wrap" id="futureInstallmentsDash"></div>
+  </div>
+
   <div class="card">
     <div class="section-title">Historial de Ingresos</div>
     <div class="hist-wrap" id="incomeHistDash"></div>
@@ -501,6 +507,19 @@ function addMonths(ym, n){
   const d=new Date(y,m-1+n,1);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
+function splitInstallments(total, count){
+  const cents = Math.round(Number(total)||0);
+  const n = Math.max(1, Number(count)||1);
+  const base = Math.floor(cents / n);
+  const remainder = cents - base * n;
+  return Array.from({length:n}, (_,i)=>base + (i < remainder ? 1 : 0));
+}
+function expenseAmount(e){ return Math.round(Number(e?.amount)||0); }
+function getFutureInstallments(ym){
+  return state.expenses
+    .filter(e=>e.installments>1 && e.date.slice(0,7)>ym)
+    .sort((a,b)=>a.date.localeCompare(b.date)||String(a.description).localeCompare(String(b.description)));
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 function daysInMonth(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).getDate(); }
 function daysPassed(ym){ return ym!==currentMonthStr() ? daysInMonth(ym) : new Date().getDate(); }
@@ -673,7 +692,7 @@ function getTCUsed(){
   // TC used = expenses with payType TC not yet paid to TC
   return state.expenses
     .filter(e=>e.payType==='TC'&&!e.tcPaid)
-    .reduce((s,e)=>s+e.amount,0);
+    .reduce((s,e)=>s+expenseAmount(e),0);
 }
 
 function renderTCBanner(){
@@ -742,24 +761,24 @@ function initMonth(){
 }
 
 /* ── METRICS ── */
-function getMonthExpenses(ym){ return state.expenses.filter(e=>e.date.startsWith(ym)); }
-function getMonthIncome(ym)  { return state.income.filter(i=>i.date.startsWith(ym)); }
+function getMonthExpenses(ym){ return state.expenses.filter(e=>e.date.slice(0,7)===ym); }
+function getMonthIncome(ym)  { return state.income.filter(i=>i.date.slice(0,7)===ym); }
 
 function calcMetrics(ym){
   const exps=getMonthExpenses(ym), incs=getMonthIncome(ym);
-  const totalExp=exps.reduce((s,e)=>s+e.amount,0);
+  const totalExp=exps.reduce((s,e)=>s+expenseAmount(e),0);
   const totalInc=incs.reduce((s,i)=>s+i.amount,0);
   const saldo=totalInc-totalExp;
   const pct=totalInc>0?(totalExp/totalInc*100):null;
   const byCat={};
-  exps.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+e.amount);
+  exps.forEach(e=>byCat[e.category]=(byCat[e.category]||0)+expenseAmount(e));
   let topCat=null,topAmt=0;
   Object.entries(byCat).forEach(([c,a])=>{if(a>topAmt){topCat=c;topAmt=a;}});
   const days=daysPassed(ym), totalDays=daysInMonth(ym);
   const dailyAvg=days>0?totalExp/days:0;
   const projection=ym===currentMonthStr()?dailyAvg*totalDays:totalExp;
   const byType={ TC:0, DB:0 };
-  exps.forEach(e=>byType[e.payType||'TC']=(byType[e.payType||'TC']||0)+e.amount);
+  exps.forEach(e=>byType[e.payType||'TC']=(byType[e.payType||'TC']||0)+expenseAmount(e));
   return {totalExp,totalInc,saldo,pct,topCat,topAmt,dailyAvg,projection,byCat,byType};
 }
 
@@ -857,7 +876,7 @@ function renderExpenseHistory(containerId){
     <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis">
       ${e.isClau?'<span style="color:var(--purple);font-size:11px;font-weight:700">CLAU </span>':''}${e.description}
     </td>
-    <td class="mono">${fmt(e.amount)}</td>
+    <td class="mono">${fmt(expenseAmount(e))}</td>
     <td><span class="badge">${e.category}</span></td>
     <td>${payTypeBadge(e)}</td>
     <td><div class="flex gap-1">
@@ -891,6 +910,36 @@ function renderIncomeHistory(containerId){
       <button class="btn btn-ghost btn-sm" onclick="deleteIncome('${i.id}')" title="Eliminar">🗑️</button>
     </div></td>
   </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderFutureInstallments(containerId){
+  const future=getFutureInstallments(selectedMonth);
+  const el=document.getElementById(containerId);
+  if(!el) return;
+  if(!future.length){
+    el.innerHTML=`<div class="empty"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>No hay cuotas futuras registradas.</div>`;
+    return;
+  }
+  const byMonth={};
+  future.forEach(e=>{
+    const ym=e.date.slice(0,7);
+    if(!byMonth[ym]) byMonth[ym]=[];
+    byMonth[ym].push(e);
+  });
+  el.innerHTML=`<table><thead><tr>
+    <th>Mes</th><th>Descripción</th><th>Cuota</th><th>Categoría</th><th>Total mes</th>
+  </tr></thead><tbody>
+  ${Object.entries(byMonth).flatMap(([ym,items])=>{
+    const total=items.reduce((s,e)=>s+expenseAmount(e),0);
+    return items.map((e,idx)=>`<tr>
+      <td>${idx===0?monthLabel(ym):''}</td>
+      <td style="max-width:170px;overflow:hidden;text-overflow:ellipsis">${e.description} <span style="color:var(--muted);font-size:11px">${e.installmentNum||'?'} / ${e.installments||'?'}</span></td>
+      <td class="mono">${fmt(expenseAmount(e))}</td>
+      <td><span class="badge">${e.category}</span></td>
+      <td class="mono">${idx===0?fmt(total):''}</td>
+    </tr>`);
+  }).join('')}
   </tbody></table>`;
 }
 
@@ -938,7 +987,7 @@ function updateInstallmentPreview(){
   }
   if(cuotaDisplay){
     if(installments>1&&amount){
-      cuotaDisplay.textContent=`Cada cuota: ${fmt(Math.round(amount/installments))} × ${installments} = ${fmt(amount)}`;
+      cuotaDisplay.textContent=`Cuota aprox.: ${fmt(Math.round(amount/installments))} × ${installments} = ${fmt(amount)}`;
       cuotaDisplay.classList.remove('hidden');
     } else {
       cuotaDisplay.classList.add('hidden');
@@ -946,7 +995,8 @@ function updateInstallmentPreview(){
   }
   if(currentPayType!=='TC'||installments<=1||!amount){ preview.classList.add('hidden'); return; }
   const mes0=document.getElementById('expMes0')?.checked||false;
-  const cuota=Math.round(amount/installments);
+  const cuotas=splitInstallments(amount,installments);
+  const cuota=cuotas[0]||0;
   const baseDate=document.getElementById('expDate').value||todayStr();
   const baseMonth=baseDate.slice(0,7);
   let html=`<strong>${installments} cuotas sin interés de ${fmt(cuota)}</strong>`;
@@ -956,12 +1006,12 @@ function updateInstallmentPreview(){
     // mes0: cuotas start next month, no charge recorded for current month
     for(let i=0;i<installments;i++){
       html+=i===0?'':' · ';
-      html+=`${addMonths(baseMonth,i+1)}: ${fmt(cuota)}`;
+      html+=`${addMonths(baseMonth,i+1)}: ${fmt(cuotas[i])}`;
     }
   } else {
     for(let i=0;i<installments;i++){
       html+=i===0?'':' · ';
-      html+=`${addMonths(baseMonth,i)}: ${fmt(cuota)}`;
+      html+=`${addMonths(baseMonth,i)}: ${fmt(cuotas[i])}`;
     }
   }
   preview.innerHTML=html; preview.classList.remove('hidden');
@@ -1046,35 +1096,29 @@ function submitExpense(){
 
   const mes0 = payType==='TC' && installments>1 && (document.getElementById('expMes0')?.checked||false);
   const baseMonth=date.slice(0,7);
-  const cuota=installments>1?Math.round(amount/installments):amount;
+  const cuotas = splitInstallments(amount,installments);
 
   if(editingExpenseId && !editingGroupMode){
-    // Update single record
     const idx=state.expenses.findIndex(e=>e.id===editingExpenseId);
     if(idx>-1){
       const old=state.expenses[idx];
-      // Unlink old clau links
       if(old.clauLinkedIncome){
         const li=state.income.find(i=>i.id===old.clauLinkedIncome);
         if(li){delete li.clauLinkedExpense; li.updatedAt=now;}
       }
-      // When editing an existing cuota, preserve its installment metadata
-      // The 'amount' field = cuota amount (already divided), do NOT re-divide
       state.expenses[idx]=cleanObj({
         ...old,
         date, description:desc,
-        amount,          // cuota amount as entered
+        amount,
         category:cat, payType,
-        isClau:          isClau   || undefined,
-        tcPaid:          tcPaid   || undefined,
-        // preserve original installment grouping metadata
-        installments:    old.installments    || undefined,
-        installmentNum:  old.installmentNum  || undefined,
-        groupId:         old.groupId         || undefined,
-        clauLinkedIncome: clauLink           || undefined,
+        isClau: isClau || undefined,
+        tcPaid: tcPaid || undefined,
+        installments: old.installments || undefined,
+        installmentNum: old.installmentNum || undefined,
+        groupId: old.groupId || undefined,
+        clauLinkedIncome: clauLink || undefined,
         updatedAt: now
       });
-      // Link new
       if(clauLink){
         const li=state.income.find(i=>i.id===clauLink);
         if(li){li.clauLinkedExpense=editingExpenseId;li.updatedAt=now;}
@@ -1083,12 +1127,9 @@ function submitExpense(){
     showToast('Gasto actualizado ✓','var(--accent)');
     cancelEditExpense();
   } else if(editingGroupMode && editingGroupId){
-    // Delete all old cuotas in group, create fresh ones
     state.expenses=state.expenses.filter(x=>x.groupId!==editingGroupId);
-    const mes0=document.getElementById('expMes0')?.checked||false;
-    const groupId=editingGroupId; // reuse same groupId
-    const cuota=Math.round(amount/installments);
-    for(let n=0;n<installments;n++){
+    const groupId=editingGroupId;
+    cuotas.forEach((cuota,n)=>{
       const id=uid();
       const installDate=mes0
         ? addMonths(baseMonth,n+1)+'-01'
@@ -1097,21 +1138,19 @@ function submitExpense(){
         id, groupId,
         date:installDate, description:desc,
         amount:cuota, category:cat, payType,
+        totalAmount:amount,
         installments, installmentNum:n+1,
         isClau:isClau&&n===0?true:undefined,
-        tcPaid:undefined,
+        tcPaid:tcPaid||undefined,
         createdAt:now, updatedAt:now
       }));
-    }
+    });
     showToast(`${installments} cuotas actualizadas ✓`,'var(--accent)');
     cancelEditExpense();
   } else {
-    // Create (possibly multiple installments)
     const groupId=uid();
-    for(let n=0;n<installments;n++){
+    cuotas.forEach((cuota,n)=>{
       const id=uid();
-      // mes0: cuotas start next month → n=0 maps to baseMonth+1
-      // normal: n=0 uses the original date (day preserved), rest use 1st of month
       const installDate=mes0
         ? addMonths(baseMonth,n+1)+'-01'
         : (n===0 ? date : addMonths(baseMonth,n)+'-01');
@@ -1119,6 +1158,7 @@ function submitExpense(){
         id, groupId:installments>1?groupId:undefined,
         date:installDate, description:desc,
         amount:cuota, category:cat, payType,
+        totalAmount:installments>1?amount:undefined,
         installments:installments>1?installments:undefined,
         installmentNum:installments>1?n+1:undefined,
         isClau:isClau&&n===0?true:undefined,
@@ -1126,15 +1166,13 @@ function submitExpense(){
         clauLinkedIncome:n===0&&clauLink?clauLink:undefined,
         createdAt:now, updatedAt:now
       };
-      // Clean undefined keys
       state.expenses.push(cleanObj(entry));
-      // Link income to first installment
       if(n===0&&clauLink){
         const li=state.income.find(i=>i.id===clauLink);
         if(li){li.clauLinkedExpense=id;li.updatedAt=now;}
       }
-    }
-    const msg=installments>1?`${installments} cuotas de ${fmt(cuota)} creadas ✓`:'Gasto agregado ✓';
+    });
+    const msg=installments>1?`${installments} cuotas creadas. Este mes se registra solo ${fmt(cuotas[0])} ✓`:'Gasto agregado ✓';
     showToast(msg,'var(--accent)');
     resetExpenseForm();
   }
@@ -1525,7 +1563,7 @@ function renderCharts(){
   if(!exps.length){lc.classList.add('hidden');le.classList.remove('hidden');}
   else{lc.classList.remove('hidden');le.classList.add('hidden');
     const td=daysInMonth(selectedMonth),dc={};
-    exps.forEach(e=>{const d=parseInt(e.date.split('-')[2],10);dc[d]=(dc[d]||0)+e.amount;});
+    exps.forEach(e=>{const d=parseInt(e.date.split('-')[2],10);dc[d]=(dc[d]||0)+expenseAmount(e);});
     let cum=0;const labels=[],data=[];
     for(let d=1;d<=td;d++){cum+=(dc[d]||0);labels.push(d);data.push(cum);}
     charts.line=new Chart(lc,{type:'line',
@@ -1570,7 +1608,7 @@ function buildCSV(rows,headers){ return '\uFEFF'+[headers.join(';'),...rows].joi
 function exportExpensesCSV(){
   const exps=sortRecords(getMonthExpenses(selectedMonth));
   if(!exps.length){showToast('No hay gastos','var(--warn)');return;}
-  downloadFile(buildCSV(exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category),e.payType||'TC',e.installments||1,e.installmentNum||1,e.isClau?'Sí':'No',e.tcPaid?'Sí':'No'].join(';')),['fecha','descripcion','monto','categoria','tipo_pago','cuotas','cuota_num','es_clau','tc_pagada']),`gastos_${selectedMonth}.csv`,'text/csv;charset=utf-8');
+  downloadFile(buildCSV(exps.map(e=>[e.date,escapeCsv(e.description),expenseAmount(e),escapeCsv(e.category),e.payType||'TC',e.installments||1,e.installmentNum||1,e.isClau?'Sí':'No',e.tcPaid?'Sí':'No'].join(';')),['fecha','descripcion','monto','categoria','tipo_pago','cuotas','cuota_num','es_clau','tc_pagada']),`gastos_${selectedMonth}.csv`,'text/csv;charset=utf-8');
   showToast('CSV descargado ✓','var(--accent)');
 }
 window.exportExpensesCSV=exportExpensesCSV;
@@ -1588,7 +1626,7 @@ function monthClose(){
   const exps=getMonthExpenses(ym), incs=getMonthIncome(ym), now=new Date().toISOString();
   const closure={mes:ym,fechaGeneracion:now,presupuesto:budget,totalIngresos:met.totalInc,totalGastos:met.totalExp,saldoDisponible:met.saldo,porcentajeGastado:met.pct,gastoDiarioPromedio:met.dailyAvg,proyeccionMensual:met.projection,totalesPorCategoria:met.byCat,gastos:exps,ingresos:incs};
   downloadFile(JSON.stringify(closure,null,2),`cierre_${ym}.json`,'application/json');
-  const csvLines=[`CIERRE DE MES - ${monthLabel(ym)}`,'',`Generado;${now}`,`Presupuesto;${budget||'No definido'}`,`Total Ingresos;${met.totalInc}`,`Total Gastos;${met.totalExp}`,`Saldo;${met.saldo}`,`% gastado;${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}`,'','INGRESOS','fecha;descripcion;monto;fuente',...incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')),'','GASTOS','fecha;descripcion;monto;categoria;tipo',...exps.map(e=>[e.date,escapeCsv(e.description),e.amount,escapeCsv(e.category),e.payType||'TC'].join(';'))];
+  const csvLines=[`CIERRE DE MES - ${monthLabel(ym)}`,'',`Generado;${now}`,`Presupuesto;${budget||'No definido'}`,`Total Ingresos;${met.totalInc}`,`Total Gastos;${met.totalExp}`,`Saldo;${met.saldo}`,`% gastado;${met.pct!==null?met.pct.toFixed(1)+'%':'Sin ingresos'}`,'','INGRESOS','fecha;descripcion;monto;fuente',...incs.map(i=>[i.date,escapeCsv(i.description),i.amount,escapeCsv(i.source)].join(';')),'','GASTOS','fecha;descripcion;monto;categoria;tipo',...exps.map(e=>[e.date,escapeCsv(e.description),expenseAmount(e),escapeCsv(e.category),e.payType||'TC'].join(';'))];
   downloadFile('\uFEFF'+csvLines.join('\r\n'),`cierre_${ym}.csv`,'text/csv;charset=utf-8');
   if(confirm('¿Eliminar los registros de este mes después del cierre?')){
     if(confirm(`Esto eliminará los registros de ${monthLabel(ym)}. Se guardará respaldo en Firestore. ¿Confirmas?`)){
@@ -1632,7 +1670,7 @@ window.importBackup=importBackup;
 /* ── RENDER ALL ── */
 function renderAll(){
   renderMetrics(); renderBudget(); renderTCBanner(); renderClauBanner();
-  renderExpenseHistory('expenseHistDash'); renderExpenseHistory('expenseHistFull');
+  renderExpenseHistory('expenseHistDash'); renderExpenseHistory('expenseHistFull'); renderFutureInstallments('futureInstallmentsDash');
   renderIncomeHistory('incomeHistDash'); renderIncomeHistory('incomeHistFull');
   if(document.getElementById('tab-charts').classList.contains('active')) renderCharts();
 }
